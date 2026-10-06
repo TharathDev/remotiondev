@@ -65,7 +65,7 @@ Execution Time: 0.041 ms`;
 /** Reading the plan the server actually chose. */
 const Explain: React.FC = () => (
 	<SceneFrame chapter={CHAPTER} step="Reading the plan" narration={{episode: EP, scene: 'explain'}}>
-		<AbsoluteFill style={{alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 44}}>
+		<AbsoluteFill style={{alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 30}}>
 			<Heading>EXPLAIN shows the estimate. ANALYZE shows the truth.</Heading>
 
 			<SqlBlock sql={`EXPLAIN ANALYZE SELECT id, email FROM users WHERE id = 42;`} from={10} speed={3} size={30} chrome={false} />
@@ -85,13 +85,14 @@ const Explain: React.FC = () => (
 				</pre>
 			</Panel>
 
-			<div style={{width: 1180, display: 'flex', flexDirection: 'column', gap: 20}}>
-				<Callout from={cue(EP, 'explain', 1)} label="cost=" accent={theme.warn}>
-					The guess, in planner units. Startup cost, then total cost.
+			{/* One line each: the narration carries the detail, and a paragraph here
+			    pushes the scene into the caption band. */}
+			<div style={{width: 1180, display: 'flex', flexDirection: 'column', gap: 16}}>
+				<Callout from={cue(EP, 'explain', 1)} label="cost=" accent={theme.warn} size={28}>
+					The guess, in planner units.
 				</Callout>
-				<Callout from={cue(EP, 'explain', 2)} label="actual time=" accent={theme.ok}>
-					The measurement, in milliseconds. When <em>rows</em> here is far from the
-					estimate, your statistics are stale — run ANALYZE.
+				<Callout from={cue(EP, 'explain', 2)} label="actual time=" accent={theme.ok} size={28}>
+					The measurement, in milliseconds.
 				</Callout>
 			</div>
 		</AbsoluteFill>

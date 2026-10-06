@@ -95,19 +95,18 @@ const ParseTree: React.FC = () => {
 const Pipelines: React.FC = () => {
 	const mysqlAt = cue(EP, 'pipelines', 1);
 	const pgAt = cue(EP, 'pipelines', 2);
-	const whyAt = cue(EP, 'pipelines', 3);
 
 	return (
 		<SceneFrame chapter={CHAPTER} step="Stage 3 — analysis" narration={{episode: EP, scene: 'pipelines'}}>
-			<AbsoluteFill style={{alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 50}}>
-				<Heading size={50}>PostgreSQL puts one more stage between parse and plan</Heading>
+			<AbsoluteFill style={{alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 34}}>
+				<Heading size={48}>PostgreSQL puts one more stage between parse and plan</Heading>
 
-				<div style={{display: 'flex', flexDirection: 'column', gap: 30}}>
+				<div style={{display: 'flex', flexDirection: 'column', gap: 22}}>
 					<EnginePanel engine={engines.mysql} from={mysqlAt - 26} width={1420} tagline="parse → optimize">
 						<div style={{display: 'flex', alignItems: 'center'}}>
 							<Stage label="Parser" sub="syntax tree" from={mysqlAt} width={250} accent={engines.mysql.accent} />
 							<Connector from={mysqlAt + 6} travel={mysqlAt + 18} length={70} accent={engines.mysql.accent} />
-							<Stage label="Resolver" sub="names + types" from={mysqlAt + 12} width={250} accent={engines.mysql.accent} />
+							<Stage label="Resolver" sub="names" from={mysqlAt + 12} width={250} accent={engines.mysql.accent} />
 							<Connector from={mysqlAt + 18} travel={mysqlAt + 32} length={70} accent={engines.mysql.accent} />
 							<Stage label="Optimizer" sub="cost model" from={mysqlAt + 24} width={250} accent={engines.mysql.accent} />
 						</div>
@@ -117,21 +116,16 @@ const Pipelines: React.FC = () => {
 						<div style={{display: 'flex', alignItems: 'center'}}>
 							<Stage label="Parser" sub="raw tree" from={pgAt} width={220} accent={engines.postgres.accent} />
 							<Connector from={pgAt + 6} travel={pgAt + 16} length={56} accent={engines.postgres.accent} />
-							<Stage label="Analyzer" sub="catalog lookup" from={pgAt + 10} width={220} accent={engines.postgres.accent} />
+							<Stage label="Analyzer" sub="catalog" from={pgAt + 10} width={220} accent={engines.postgres.accent} />
 							<Connector from={pgAt + 16} travel={pgAt + 28} length={56} accent={engines.postgres.accent} />
-							<Stage label="Rewriter" sub="views + rules" from={pgAt + 20} width={220} accent={engines.postgres.accent} />
+							<Stage label="Rewriter" sub="views" from={pgAt + 20} width={220} accent={engines.postgres.accent} />
 							<Connector from={pgAt + 26} travel={pgAt + 40} length={56} accent={engines.postgres.accent} />
 							<Stage label="Planner" sub="cost model" from={pgAt + 30} width={220} accent={engines.postgres.accent} />
 						</div>
 					</EnginePanel>
 				</div>
 
-				<div style={{width: 1420}}>
-					<Callout from={whyAt} label="Why the rewriter matters" accent={engines.postgres.accent}>
-						It is what expands a view into the query that selects from it, and what makes
-						PostgreSQL rules work at all.
-					</Callout>
-				</div>
+
 			</AbsoluteFill>
 		</SceneFrame>
 	);

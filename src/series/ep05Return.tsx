@@ -58,7 +58,7 @@ const Streaming: React.FC = () => (
 /** The frames each engine actually puts on the socket. */
 const Protocol: React.FC = () => (
 	<SceneFrame chapter={CHAPTER} step="What is on the socket" narration={{episode: EP, scene: 'protocol'}}>
-		<AbsoluteFill style={{alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 50}}>
+		<AbsoluteFill style={{alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 34}}>
 			<Heading>Same shape, different frames</Heading>
 
 			<div style={{display: 'flex', gap: 40}}>
@@ -109,10 +109,10 @@ ReadyForQuery`}
 				</EnginePanel>
 			</div>
 
+			{/* One line: the narration spells out the consequence. */}
 			<div style={{width: 1300}}>
-				<Callout from={cue(EP, 'protocol', 3)} label="The trap">
-					The server streams. Your driver usually does not. That default is where
-					out-of-memory on a big SELECT comes from.
+				<Callout from={cue(EP, 'protocol', 3)} label="The trap" size={30}>
+					The server streams. Your driver usually does not.
 				</Callout>
 			</div>
 		</AbsoluteFill>

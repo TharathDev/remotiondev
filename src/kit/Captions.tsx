@@ -3,7 +3,20 @@ import {interpolate, useCurrentFrame} from 'remotion';
 import {theme} from '../theme';
 import {Cue} from './narration';
 
-export const CAPTION_BAND = 168;
+/*
+ * Tall enough for the longest caption plus its bottom margin, so scene content
+ * can never be drawn under it:
+ *
+ *   3 lines x 31px x 1.35 line-height = 126
+ * + 16px padding, top and bottom      =  32
+ * + 48px gap to the frame edge        =  48
+ *                                       206, rounded up.
+ *
+ * Scenes are centred in the space above this, so raising it costs every scene
+ * vertical room — which is why the caption is also sized to wrap to two lines
+ * for most sentences rather than three.
+ */
+export const CAPTION_BAND = 212;
 
 /** The narration line currently being spoken, shown in the lower band. */
 export const Captions: React.FC<{lines: Cue[]}> = ({lines}) => {
@@ -36,13 +49,13 @@ export const Captions: React.FC<{lines: Cue[]}> = ({lines}) => {
 		>
 			<div
 				style={{
-					maxWidth: 1480,
+					maxWidth: 1580,
 					padding: '16px 30px',
 					borderRadius: 14,
 					background: 'rgba(10,10,15,0.72)',
 					border: `1px solid ${theme.faint}`,
 					fontFamily: theme.font,
-					fontSize: 33,
+					fontSize: 31,
 					fontWeight: 500,
 					lineHeight: 1.35,
 					color: theme.ink,
