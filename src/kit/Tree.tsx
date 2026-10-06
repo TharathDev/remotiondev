@@ -123,7 +123,7 @@ export const Tree: React.FC<Props> = ({
 						<div
 							style={{
 								fontFamily: theme.mono,
-								fontSize: 23,
+								fontSize: 27,
 								fontWeight: 700,
 								color: isRoot ? accent : theme.ink,
 							}}
@@ -131,7 +131,7 @@ export const Tree: React.FC<Props> = ({
 							{n.node.label}
 						</div>
 						{n.node.sub ? (
-							<div style={{fontFamily: theme.mono, fontSize: 17, color: theme.muted, marginTop: 5}}>
+							<div style={{fontFamily: theme.mono, fontSize: 20, color: theme.muted, marginTop: 5}}>
 								{n.node.sub}
 							</div>
 						) : null}

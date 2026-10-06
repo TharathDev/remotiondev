@@ -20,7 +20,7 @@ export const Stage: React.FC<Props> = ({
 	from = 0,
 	active,
 	accent = theme.accent,
-	width = 230,
+	width = 270,
 }) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
@@ -58,7 +58,7 @@ export const Stage: React.FC<Props> = ({
 			<div
 				style={{
 					fontFamily: theme.font,
-					fontSize: 27,
+					fontSize: 31,
 					fontWeight: 700,
 					color: lit > 0 ? accent : theme.ink,
 					letterSpacing: -0.3,
@@ -70,7 +70,7 @@ export const Stage: React.FC<Props> = ({
 				<div
 					style={{
 						fontFamily: theme.mono,
-						fontSize: 17,
+						fontSize: 20,
 						color: theme.muted,
 						marginTop: 8,
 						letterSpacing: 0.5,

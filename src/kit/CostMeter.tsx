@@ -41,14 +41,14 @@ export const CostMeter: React.FC<Props> = ({
 	return (
 		<div style={{width: '100%'}}>
 			<div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 12}}>
-				<div style={{fontFamily: theme.mono, fontSize: 24, color: isChosen ? theme.ok : theme.ink}}>
+				<div style={{fontFamily: theme.mono, fontSize: 28, color: isChosen ? theme.ok : theme.ink}}>
 					{label}
 					{isChosen ? <span style={{color: theme.ok, marginLeft: 12}}>← chosen</span> : null}
 				</div>
 				<div
 					style={{
 						fontFamily: theme.mono,
-						fontSize: 30,
+						fontSize: 36,
 						fontWeight: 700,
 						color,
 						fontVariantNumeric: 'tabular-nums',

@@ -31,7 +31,7 @@ export const SqlBlock: React.FC<Props> = ({
 	sql,
 	from = 0,
 	speed = 2.2,
-	size = 34,
+	size = 38,
 	emphasis = [],
 	chrome = true,
 	caption,

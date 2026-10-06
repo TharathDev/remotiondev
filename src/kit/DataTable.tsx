@@ -27,7 +27,7 @@ export const DataTable: React.FC<Props> = ({
 	dead = [],
 	deadFrom = 0,
 	accent = theme.accent,
-	size = 24,
+	size = 30,
 	caption,
 }) => {
 	const frame = useCurrentFrame();

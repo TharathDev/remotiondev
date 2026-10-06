@@ -7,12 +7,14 @@ import {EndCard} from '../kit/EndCard';
 import {EnginePanel} from '../kit/EnginePanel';
 import {Film, filmDuration, Scene} from '../kit/Film';
 import {Heading} from '../kit/Heading';
+import {cue, sceneFrames} from '../kit/narration';
 import {Panel} from '../kit/Panel';
 import {SceneFrame} from '../kit/SceneFrame';
 import {Stage} from '../kit/Stage';
 import {TitleCard} from '../kit/TitleCard';
 import {engines, theme} from '../theme';
 
+const EP = '05-return';
 const CHAPTER = '05 · Return';
 
 const ROWS: (string | number)[][] = [
@@ -25,26 +27,26 @@ const ROWS: (string | number)[][] = [
 
 /** The result set is not a parcel. It is a stream. */
 const Streaming: React.FC = () => (
-	<SceneFrame chapter={CHAPTER} step="Back down the wire">
+	<SceneFrame chapter={CHAPTER} step="Back down the wire" narration={{episode: EP, scene: 'streaming'}}>
 		<AbsoluteFill style={{alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 46}}>
 			<Heading>Rows leave as they are found, not when the query ends</Heading>
 
 			<div style={{display: 'flex', alignItems: 'center', gap: 0}}>
-				<Stage label="Executor" sub="produces rows" from={10} active={[26, 160]} width={240} />
-				<Connector from={18} travel={34} length={80} />
-				<Stage label="Wire" sub="protocol frames" from={18} active={[40, 160]} width={240} />
-				<Connector from={26} travel={52} length={80} />
-				<Stage label="Driver" sub="buffers or yields" from={26} active={[56, 160]} width={240} />
-				<Connector from={34} travel={70} length={80} />
-				<Stage label="Your code" sub="row by row" from={34} active={[74, 160]} width={240} />
+				<Stage label="Executor" sub="produces rows" from={12} active={[cue(EP, 'streaming', 1), 9999]} width={240} />
+				<Connector from={20} travel={cue(EP, 'streaming', 1) + 10} length={80} />
+				<Stage label="Wire" sub="protocol frames" from={20} active={[cue(EP, 'streaming', 1) + 22, 9999]} width={240} />
+				<Connector from={28} travel={cue(EP, 'streaming', 1) + 32} length={80} />
+				<Stage label="Driver" sub="buffers or yields" from={28} active={[cue(EP, 'streaming', 1) + 44, 9999]} width={240} />
+				<Connector from={36} travel={cue(EP, 'streaming', 1) + 54} length={80} />
+				<Stage label="Your code" sub="row by row" from={36} active={[cue(EP, 'streaming', 1) + 66, 9999]} width={240} />
 			</div>
 
-			<Panel from={56} width={1100} title="Arriving at the client">
-				<DataTable columns={['id', 'email', 'created']} rows={ROWS} from={66} size={25} />
+			<Panel from={cue(EP, 'streaming', 1) - 10} width={1100} title="Arriving at the client">
+				<DataTable columns={['id', 'email', 'created']} rows={ROWS} from={cue(EP, 'streaming', 1) + 24} size={30} />
 			</Panel>
 
 			<div style={{width: 1100}}>
-				<Callout from={126} label="Why this matters">
+				<Callout from={cue(EP, 'streaming', 2)} label="Why this matters">
 					A driver that materialises the whole result set before handing you the first row
 					throws this away — and your memory with it.
 				</Callout>
@@ -55,12 +57,12 @@ const Streaming: React.FC = () => (
 
 /** The frames each engine actually puts on the socket. */
 const Protocol: React.FC = () => (
-	<SceneFrame chapter={CHAPTER} step="What is on the socket">
+	<SceneFrame chapter={CHAPTER} step="What is on the socket" narration={{episode: EP, scene: 'protocol'}}>
 		<AbsoluteFill style={{alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 50}}>
 			<Heading>Same shape, different frames</Heading>
 
 			<div style={{display: 'flex', gap: 40}}>
-				<EnginePanel engine={engines.mysql} from={14} tagline="text or binary protocol" minHeight={380}>
+				<EnginePanel engine={engines.mysql} from={cue(EP, 'protocol', 1) - 26} tagline="text or binary protocol" minHeight={380}>
 					<pre
 						style={{
 							fontFamily: theme.mono,
@@ -76,14 +78,14 @@ Row packet         x M
 OK packet (EOF)`}
 					</pre>
 					<div style={{marginTop: 26}}>
-						<Callout from={44} label="Default" accent={engines.mysql.accent} size={24}>
+						<Callout from={cue(EP, 'protocol', 1) + 45} label="Default" accent={engines.mysql.accent} size={28}>
 							The client library buffers the whole set unless you ask for an
 							unbuffered / streaming cursor.
 						</Callout>
 					</div>
 				</EnginePanel>
 
-				<EnginePanel engine={engines.postgres} from={22} tagline="extended query protocol" minHeight={380}>
+				<EnginePanel engine={engines.postgres} from={cue(EP, 'protocol', 2) - 26} tagline="extended query protocol" minHeight={380}>
 					<pre
 						style={{
 							fontFamily: theme.mono,
@@ -99,7 +101,7 @@ CommandComplete
 ReadyForQuery`}
 					</pre>
 					<div style={{marginTop: 26}}>
-						<Callout from={56} label="Default" accent={engines.postgres.accent} size={24}>
+						<Callout from={cue(EP, 'protocol', 2) + 45} label="Default" accent={engines.postgres.accent} size={28}>
 							Also buffered client-side. DECLARE CURSOR, or a driver fetch size,
 							is what makes it incremental.
 						</Callout>
@@ -108,7 +110,7 @@ ReadyForQuery`}
 			</div>
 
 			<div style={{width: 1300}}>
-				<Callout from={92} label="The trap">
+				<Callout from={cue(EP, 'protocol', 3)} label="The trap">
 					The server streams. Your driver usually does not. That default is where
 					out-of-memory on a big SELECT comes from.
 				</Callout>
@@ -119,23 +121,25 @@ ReadyForQuery`}
 
 const SCENES: Scene[] = [
 	{
-		duration: 100,
+		duration: sceneFrames(EP, 'title'),
 		node: (
 			<TitleCard
 				number="05"
 				title="RETURN"
 				subtitle="How rows get from the executor back into your variables"
 				part="The life of a query"
+				narration={{episode: EP, scene: 'title'}}
 			/>
 		),
 	},
-	{duration: 190, node: <Streaming />},
-	{duration: 180, node: <Protocol />},
+	{duration: sceneFrames(EP, 'streaming'), node: <Streaming />},
+	{duration: sceneFrames(EP, 'protocol'), node: <Protocol />},
 	{
-		duration: 130,
+		duration: sceneFrames(EP, 'end'),
 		node: (
 			<EndCard
 				next="06 · SELECT"
+				narration={{episode: EP, scene: 'end'}}
 				takeaways={[
 					'The server emits rows as it finds them — the result set is a stream, not a parcel.',
 					'Both wire protocols describe the columns once, then send rows, then signal completion.',

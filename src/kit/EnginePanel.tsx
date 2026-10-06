@@ -52,7 +52,7 @@ export const EnginePanel: React.FC<Props> = ({
 					<div
 						style={{
 							fontFamily: theme.font,
-							fontSize: 30,
+							fontSize: 34,
 							fontWeight: 800,
 							color: engine.accent,
 							letterSpacing: -0.4,
@@ -61,7 +61,7 @@ export const EnginePanel: React.FC<Props> = ({
 						{engine.name}
 					</div>
 					{tagline ? (
-						<div style={{fontFamily: theme.mono, fontSize: 17, color: theme.muted, marginTop: 4}}>
+						<div style={{fontFamily: theme.mono, fontSize: 21, color: theme.muted, marginTop: 4}}>
 							{tagline}
 						</div>
 					) : null}

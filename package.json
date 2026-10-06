@@ -12,7 +12,8 @@
     "typecheck": "tsc --noEmit",
     "upgrade": "remotion upgrade",
     "render:all": "node scripts/render-all.mjs",
-    "concat": "node scripts/concat.mjs"
+    "concat": "node scripts/concat.mjs",
+    "tts": "node scripts/tts.mjs"
   },
   "dependencies": {
     "@remotion/cli": "4.0.533",

@@ -5,57 +5,50 @@ import {Connector} from '../kit/Connector';
 import {EndCard} from '../kit/EndCard';
 import {EnginePanel} from '../kit/EnginePanel';
 import {Film, filmDuration, Scene} from '../kit/Film';
+import {Heading} from '../kit/Heading';
+import {cue, sceneFrames} from '../kit/narration';
 import {SceneFrame} from '../kit/SceneFrame';
 import {Stage} from '../kit/Stage';
 import {TitleCard} from '../kit/TitleCard';
 import {engines, theme} from '../theme';
 
+const EP = '01-connection';
 const CHAPTER = '01 · Connection';
 
-/** The handshake, as a pipeline the query has not even entered yet. */
+/**
+ * The handshake, as a pipeline the query has not even entered yet.
+ *
+ * Narration lines: 0 nothing runs · 1 the server speaks first ·
+ * 2 the client answers · 3 connections are expensive.
+ */
 const Handshake: React.FC = () => {
-	const frame = useCurrentFrame();
-
-	const heading = interpolate(frame, [0, 16], [0, 1], {
-		extrapolateLeft: 'clamp',
-		extrapolateRight: 'clamp',
-	});
+	const serverSpeaks = cue(EP, 'handshake', 1);
+	const clientAnswers = cue(EP, 'handshake', 2);
+	const cost = cue(EP, 'handshake', 3);
 
 	return (
-		<SceneFrame chapter={CHAPTER} step="Before the query">
-			<AbsoluteFill style={{alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 70}}>
-				<div
-					style={{
-						opacity: heading,
-						transform: `translateY(${interpolate(heading, [0, 1], [-16, 0])}px)`,
-						fontFamily: theme.font,
-						fontSize: 52,
-						fontWeight: 800,
-						color: theme.ink,
-						letterSpacing: -1,
-					}}
-				>
-					Nothing runs until a session exists
-				</div>
+		<SceneFrame chapter={CHAPTER} step="Before the query" narration={{episode: EP, scene: 'handshake'}}>
+			<AbsoluteFill style={{alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 64}}>
+				<Heading>Nothing runs until a session exists</Heading>
 
 				<div style={{display: 'flex', alignItems: 'center'}}>
-					<Stage label="Client" sub="psql / mysql" from={10} active={[26, 44]} width={210} />
-					<Connector from={20} travel={34} length={78} />
-					<Stage label="Socket" sub="TCP or unix" from={18} active={[44, 62]} width={210} />
-					<Connector from={28} travel={52} length={78} />
-					<Stage label="Auth" sub="scram / sha2" from={26} active={[62, 84]} width={210} />
-					<Connector from={36} travel={72} length={78} />
-					<Stage label="Session" sub="backend ready" from={34} active={[84, 150]} width={210} />
+					<Stage label="Client" sub="psql / mysql" from={18} active={[serverSpeaks, serverSpeaks + 40]} />
+					<Connector from={28} travel={serverSpeaks + 8} length={80} />
+					<Stage label="Socket" sub="TCP or unix" from={26} active={[serverSpeaks + 40, clientAnswers]} />
+					<Connector from={36} travel={serverSpeaks + 48} length={80} />
+					<Stage label="Auth" sub="scram / sha2" from={34} active={[clientAnswers, clientAnswers + 55]} />
+					<Connector from={44} travel={clientAnswers + 10} length={80} />
+					<Stage label="Session" sub="backend ready" from={42} active={[clientAnswers + 55, cost + 400]} />
 				</div>
 
-				<div style={{display: 'flex', flexDirection: 'column', gap: 22, width: 1060}}>
-					<Callout from={92} label="Handshake">
+				<div style={{display: 'flex', flexDirection: 'column', gap: 26, width: 1180}}>
+					<Callout from={serverSpeaks} label="Handshake">
 						The server speaks first: it sends its version and the auth methods it will
 						accept, and the client answers with credentials.
 					</Callout>
-					<Callout from={112} label="Cost">
-						A connection is expensive to build and cheap to keep. This is the whole
-						argument for connection pooling.
+					<Callout from={cost} label="Cost">
+						Expensive to build, cheap to keep. That asymmetry is the whole argument for
+						connection pooling.
 					</Callout>
 				</div>
 			</AbsoluteFill>
@@ -63,18 +56,18 @@ const Handshake: React.FC = () => {
 	);
 };
 
-/** Where the two engines genuinely diverge: what a connection *is*. */
-const ThreadVsProcess: React.FC = () => {
+/** A grid of workers, popping in one at a time as the engine is described. */
+const Workers: React.FC<{count: number; accent: string; from: number; label: string}> = ({
+	count,
+	accent,
+	from,
+	label,
+}) => {
 	const frame = useCurrentFrame();
 
-	const heading = interpolate(frame, [0, 16], [0, 1], {
-		extrapolateLeft: 'clamp',
-		extrapolateRight: 'clamp',
-	});
-
-	const workers = (count: number, accent: string, from: number, label: string) => (
+	return (
 		<div>
-			<div style={{display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 20}}>
+			<div style={{display: 'flex', gap: 11, flexWrap: 'wrap', marginBottom: 22}}>
 				{new Array(count).fill(true).map((_, i) => {
 					const pop = interpolate(frame, [from + i * 3, from + i * 3 + 10], [0, 1], {
 						extrapolateLeft: 'clamp',
@@ -84,9 +77,9 @@ const ThreadVsProcess: React.FC = () => {
 						<div
 							key={i}
 							style={{
-								width: 44,
-								height: 44,
-								borderRadius: 10,
+								width: 48,
+								height: 48,
+								borderRadius: 11,
 								background: `${accent}22`,
 								border: `1px solid ${accent}66`,
 								opacity: pop,
@@ -96,35 +89,39 @@ const ThreadVsProcess: React.FC = () => {
 					);
 				})}
 			</div>
-			<div style={{fontFamily: theme.mono, fontSize: 19, color: theme.muted, letterSpacing: 1}}>
+			<div style={{fontFamily: theme.mono, fontSize: 20, color: theme.muted, letterSpacing: 1}}>
 				{label}
 			</div>
 		</div>
 	);
+};
+
+/**
+ * Where the two engines genuinely diverge: what a connection *is*.
+ *
+ * Narration lines: 0 not the same thing · 1 MySQL threads · 2 PostgreSQL processes.
+ */
+const ThreadVsProcess: React.FC = () => {
+	const mysqlAt = cue(EP, 'engines', 1);
+	const pgAt = cue(EP, 'engines', 2);
 
 	return (
-		<SceneFrame chapter={CHAPTER} step="One connection =">
-			<AbsoluteFill style={{alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 56}}>
-				<div
-					style={{
-						opacity: heading,
-						fontFamily: theme.font,
-						fontSize: 52,
-						fontWeight: 800,
-						color: theme.ink,
-						letterSpacing: -1,
-					}}
-				>
-					A connection is not the same thing in both engines
-				</div>
+		<SceneFrame chapter={CHAPTER} step="One connection =" narration={{episode: EP, scene: 'engines'}}>
+			<AbsoluteFill style={{alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 54}}>
+				<Heading>A connection is not the same thing in both engines</Heading>
 
 				<div style={{display: 'flex', gap: 40}}>
-					<EnginePanel engine={engines.mysql} from={14} tagline="thread per connection" minHeight={330}>
-						{workers(12, engines.mysql.accent, 34, '12 threads inside one mysqld process')}
+					<EnginePanel engine={engines.mysql} from={mysqlAt - 26} tagline="thread per connection" minHeight={360}>
+						<Workers
+							count={12}
+							accent={engines.mysql.accent}
+							from={mysqlAt}
+							label="12 threads inside one mysqld process"
+						/>
 						<div
 							style={{
 								fontFamily: theme.font,
-								fontSize: 25,
+								fontSize: 28,
 								color: theme.ink,
 								lineHeight: 1.5,
 								marginTop: 26,
@@ -135,12 +132,17 @@ const ThreadVsProcess: React.FC = () => {
 						</div>
 					</EnginePanel>
 
-					<EnginePanel engine={engines.postgres} from={22} tagline="process per connection" minHeight={330}>
-						{workers(12, engines.postgres.accent, 42, '12 OS processes forked by the postmaster')}
+					<EnginePanel engine={engines.postgres} from={pgAt - 26} tagline="process per connection" minHeight={360}>
+						<Workers
+							count={12}
+							accent={engines.postgres.accent}
+							from={pgAt}
+							label="12 OS processes forked by the postmaster"
+						/>
 						<div
 							style={{
 								fontFamily: theme.font,
-								fontSize: 25,
+								fontSize: 28,
 								color: theme.ink,
 								lineHeight: 1.5,
 								marginTop: 26,
@@ -158,23 +160,25 @@ const ThreadVsProcess: React.FC = () => {
 
 const SCENES: Scene[] = [
 	{
-		duration: 100,
+		duration: sceneFrames(EP, 'title'),
 		node: (
 			<TitleCard
 				number="01"
 				title="CONNECTION"
 				subtitle="The handshake that has to happen before any SQL runs"
 				part="The life of a query"
+				narration={{episode: EP, scene: 'title'}}
 			/>
 		),
 	},
-	{duration: 170, node: <Handshake />},
-	{duration: 180, node: <ThreadVsProcess />},
+	{duration: sceneFrames(EP, 'handshake'), node: <Handshake />},
+	{duration: sceneFrames(EP, 'engines'), node: <ThreadVsProcess />},
 	{
-		duration: 130,
+		duration: sceneFrames(EP, 'end'),
 		node: (
 			<EndCard
 				next="02 · Parse"
+				narration={{episode: EP, scene: 'end'}}
 				takeaways={[
 					'The server speaks first, the client answers with credentials, and only then does a session exist.',
 					'MySQL gives each connection a thread; PostgreSQL forks it a process.',

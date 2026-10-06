@@ -49,7 +49,7 @@ export const Panel: React.FC<Props> = ({
 				<div
 					style={{
 						fontFamily: theme.mono,
-						fontSize: 19,
+						fontSize: 22,
 						letterSpacing: 3,
 						textTransform: 'uppercase',
 						color: accent ?? theme.muted,

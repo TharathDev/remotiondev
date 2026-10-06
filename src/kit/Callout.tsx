@@ -15,7 +15,7 @@ export const Callout: React.FC<Props> = ({
 	children,
 	from = 0,
 	accent = theme.accent,
-	size = 28,
+	size = 34,
 	label,
 }) => {
 	const frame = useCurrentFrame();

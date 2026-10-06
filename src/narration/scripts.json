@@ -1,0 +1,140 @@
+{
+  "01-connection": {
+    "title": [
+      "Episode one. Connection.",
+      "Before a single line of SQL runs, the client and the server have to agree on who you are."
+    ],
+    "handshake": [
+      "Nothing runs until a session exists.",
+      "The server speaks first. It announces its version and the authentication methods it will accept.",
+      "The client answers with credentials. Only when that exchange succeeds does a session exist.",
+      "Building a connection is expensive. Keeping one open is cheap. That asymmetry is the whole argument for connection pooling."
+    ],
+    "engines": [
+      "But a connection is not the same thing in both engines.",
+      "MySQL gives each connection a thread inside one server process. Threads share an address space, so a new connection is cheap, and one bad thread can take the whole server down with it.",
+      "PostgreSQL forks a separate operating system process for every connection. Processes are isolated, so a crash costs you one backend instead of the server, but each one costs real memory. That is why PgBouncer exists."
+    ],
+    "end": [
+      "So: the server speaks first, the client answers, and only then does a session exist.",
+      "MySQL gives you a thread. PostgreSQL gives you a process.",
+      "Either way, the connection is the expensive part. Pool it.",
+      "Next, we parse."
+    ]
+  },
+
+  "02-parse": {
+    "title": [
+      "Episode two. Parse.",
+      "From a string on the wire to a tree the server can reason about."
+    ],
+    "tokens": [
+      "To the server, your query arrives as a string. Nothing more.",
+      "The first job is lexing: cutting that string into tokens. Keywords, identifiers, literals, punctuation.",
+      "A typo fails here, before anything touches a table."
+    ],
+    "tree": [
+      "Next, those tokens are assembled into a tree.",
+      "The root is the statement. Beneath it hang the target list, the from clause, and the where clause.",
+      "But this is still only syntax. The tree says the query is shaped correctly. It does not yet know whether the users table exists, or what type the id column is."
+    ],
+    "pipelines": [
+      "Resolving those names is a separate stage, and here the two engines differ.",
+      "MySQL goes parser, resolver, optimizer. Three steps.",
+      "PostgreSQL goes parser, analyzer, rewriter, planner. Four.",
+      "That extra rewriter stage is what expands a view into the query that selects from it, and what makes PostgreSQL rules work at all."
+    ],
+    "end": [
+      "Lexing, then parsing, turns text into a syntax tree, so a typo never reaches a table.",
+      "The parse tree is syntax only. Resolving names and types comes after.",
+      "And PostgreSQL adds a rewriter stage, which is how views and rules are expanded.",
+      "Next, we plan."
+    ]
+  },
+
+  "03-plan": {
+    "title": [
+      "Episode three. Plan.",
+      "Choosing the cheapest way to answer, before answering."
+    ],
+    "candidates": [
+      "One query. Several ways to answer it.",
+      "The server could scan every row in the table. It could build a bitmap of matching pages. Or it could walk the primary key index straight to the row.",
+      "The planner prices each one, in arbitrary cost units, and takes the cheapest.",
+      "Here that is the index scan, at eight point three, against eighteen hundred for the sequential scan.",
+      "Note what it did not do. The planner never asks which plan is fastest. It asks which plan it estimates is cheapest, and it is only as right as its statistics."
+    ],
+    "explain": [
+      "You can see the estimate yourself. EXPLAIN shows the plan. EXPLAIN ANALYZE actually runs it.",
+      "The cost numbers are the guess, in planner units: startup cost, then total cost.",
+      "The actual time numbers are the measurement, in milliseconds.",
+      "When the actual row count is far from the estimate, your statistics are stale. That is a job for ANALYZE, not a bad planner."
+    ],
+    "statistics": [
+      "So where do those numbers come from?",
+      "MySQL samples index pages at plan time, in what it calls index dives. Column histograms exist, but they are opt in.",
+      "PostgreSQL keeps histograms, most common values and null fractions in pg_statistic, and the autovacuum daemon re-runs ANALYZE as your tables drift.",
+      "Both of them search join orders: greedily in MySQL, and in PostgreSQL exhaustively for a few tables, then genetically past a threshold."
+    ],
+    "end": [
+      "The planner prices every candidate and picks the cheapest estimate, not the fastest plan.",
+      "EXPLAIN gives you the estimate. EXPLAIN ANALYZE runs it and gives you the truth.",
+      "And a big gap between estimated and actual rows means stale statistics.",
+      "Next, we execute."
+    ]
+  },
+
+  "04-execute": {
+    "title": [
+      "Episode four. Execute.",
+      "Pulling rows up the plan tree, one at a time."
+    ],
+    "pull": [
+      "Here is the thing most people get backwards. Nobody runs the whole query.",
+      "Execution is a pull. Each node asks its child for one row, and rows travel back up one at a time.",
+      "This is why LIMIT is fast. The limit node stops asking after ten rows, so the scan below it never reads the rest of the table.",
+      "And it is why ORDER BY is not. A sort cannot return its first row until it has pulled every row from its child. That is a blocking node, and it is the one that spills to disk."
+    ],
+    "buffer": [
+      "Underneath the scan, there is one more thing to understand. The scan does not read disk. It reads pages.",
+      "If the page it wants is already in the buffer pool, that is a hit, and it costs nanoseconds.",
+      "If it is not, that is a miss. The server reads from disk and evicts something to make room.",
+      "This is the only number that really matters. Tuning a database is mostly arranging for the pages you need to already be in memory."
+    ],
+    "memory": [
+      "Both engines cache pages. They disagree about how.",
+      "InnoDB opens its files with O_DIRECT and owns the memory outright, so you give the buffer pool most of the machine. A split young and old list keeps one big scan from flushing everything that matters.",
+      "PostgreSQL shares with the kernel page cache, so a page can sit in both. The usual advice is about a quarter of RAM. It sweeps a usage counter in a ring instead of a strict least recently used list, and gives big sequential scans a small private ring so they cannot evict the whole cache."
+    ],
+    "end": [
+      "Execution is a pull. Each node asks its child for one row, so LIMIT really does stop the scan.",
+      "Sort and hash nodes block. They must drain their child before returning anything.",
+      "And reads either hit the buffer pool or they hit disk. That difference is most of your latency.",
+      "Next, we return."
+    ]
+  },
+
+  "05-return": {
+    "title": [
+      "Episode five. Return.",
+      "How rows get from the executor back into your variables."
+    ],
+    "streaming": [
+      "The result set is not a parcel. It is a stream.",
+      "Rows leave the executor as they are found, not when the query ends. They are framed by the wire protocol, handed to your driver, and arrive in your code one at a time.",
+      "Which means a driver that materialises the whole result set before giving you the first row throws all of that away, and your memory with it."
+    ],
+    "protocol": [
+      "The frames look much the same on both sides.",
+      "MySQL sends a column count, then a column definition per column, then one packet per row, then an OK packet to finish.",
+      "PostgreSQL sends a row description, then a data row per row, then command complete and ready for query.",
+      "Same shape. And here is the trap: the server streams, but your driver usually does not. That default is where out of memory on a big SELECT comes from. A cursor, or a driver fetch size, is what makes it incremental."
+    ],
+    "end": [
+      "The server emits rows as it finds them. The result set is a stream.",
+      "Both wire protocols describe the columns once, then send rows, then signal completion.",
+      "And most drivers buffer everything by default. A cursor or a fetch size is what makes it incremental.",
+      "That is the life of a query, from connection to result."
+    ]
+  }
+}

@@ -13,10 +13,11 @@ type Props = {
 	subtitle: string;
 	/** Which part of the series this episode belongs to. */
 	part?: string;
+	narration?: {episode: string; scene: string};
 };
 
 /** The opening card every episode shares. */
-export const TitleCard: React.FC<Props> = ({number, title, subtitle, part}) => {
+export const TitleCard: React.FC<Props> = ({number, title, subtitle, part, narration}) => {
 	const frame = useCurrentFrame();
 
 	const rule = interpolate(frame, [10, 34], [0, 520], {
@@ -29,7 +30,7 @@ export const TitleCard: React.FC<Props> = ({number, title, subtitle, part}) => {
 	});
 
 	return (
-		<SceneFrame grid={false}>
+		<SceneFrame grid={false} narration={narration}>
 			<StarField seed={`title-${number}`} count={60} drift={50} />
 
 			<AbsoluteFill style={{alignItems: 'center', justifyContent: 'center'}}>
