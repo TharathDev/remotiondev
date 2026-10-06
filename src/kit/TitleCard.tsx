@@ -13,11 +13,27 @@ type Props = {
 	subtitle: string;
 	/** Which part of the series this episode belongs to. */
 	part?: string;
+	/**
+	 * Three short phrases naming what the episode covers, shown as the greeting
+	 * is spoken. Telling the viewer where they are going is what buys their
+	 * attention for the next ninety seconds.
+	 */
+	agenda?: string[];
+	/** Frame the agenda starts arriving on, so it can land with the narration. */
+	agendaFrom?: number;
 	narration?: {episode: string; scene: string};
 };
 
 /** The opening card every episode shares. */
-export const TitleCard: React.FC<Props> = ({number, title, subtitle, part, narration}) => {
+export const TitleCard: React.FC<Props> = ({
+	number,
+	title,
+	subtitle,
+	part,
+	agenda,
+	agendaFrom = 60,
+	narration,
+}) => {
 	const frame = useCurrentFrame();
 
 	const rule = interpolate(frame, [10, 34], [0, 520], {
@@ -77,6 +93,62 @@ export const TitleCard: React.FC<Props> = ({number, title, subtitle, part, narra
 					>
 						{subtitle}
 					</div>
+
+					{agenda && agenda.length > 0 ? (
+						<div
+							style={{
+								height: 150,
+								display: 'flex',
+								flexDirection: 'column',
+								justifyContent: 'center',
+								gap: 16,
+								minWidth: 680,
+							}}
+						>
+							{agenda.map((item, i) => {
+								const show = interpolate(
+									frame,
+									[agendaFrom + i * 14, agendaFrom + i * 14 + 16],
+									[0, 1],
+									{extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
+								);
+								return (
+									<div
+										key={i}
+										style={{
+											display: 'flex',
+											alignItems: 'baseline',
+											gap: 18,
+											opacity: show,
+											transform: `translateX(${interpolate(show, [0, 1], [-22, 0])}px)`,
+										}}
+									>
+										<span
+											style={{
+												fontFamily: theme.mono,
+												fontSize: 20,
+												fontWeight: 700,
+												color: theme.accent,
+												letterSpacing: 2,
+											}}
+										>
+											{String(i + 1).padStart(2, '0')}
+										</span>
+										<span
+											style={{
+												fontFamily: theme.font,
+												fontSize: 30,
+												fontWeight: 500,
+												color: theme.ink,
+											}}
+										>
+											{item}
+										</span>
+									</div>
+								);
+							})}
+						</div>
+					) : null}
 
 					<div
 						style={{

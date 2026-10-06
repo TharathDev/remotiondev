@@ -137,6 +137,13 @@ const SCENES: Scene[] = [
 				title="EXECUTE"
 				subtitle="Pulling rows up the plan tree, one at a time"
 				part="The life of a query"
+				agenda={[
+					'Pull, not push',
+					'Why LIMIT is fast',
+					'Pages, not disk',
+				]}
+				// The agenda lands with the "three things" line, not before it.
+				agendaFrom={cue(EP, 'title', 2)}
 				narration={{episode: EP, scene: 'title'}}
 			/>
 		),

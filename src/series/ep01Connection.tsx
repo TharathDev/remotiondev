@@ -1,5 +1,5 @@
 import React from 'react';
-import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
+import {AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
 import {Callout} from '../kit/Callout';
 import {Connector} from '../kit/Connector';
 import {EndCard} from '../kit/EndCard';
@@ -104,16 +104,31 @@ const Workers: React.FC<{count: number; accent: string; from: number; label: str
  * Narration lines: 0 not the same thing · 1 MySQL threads · 2 PostgreSQL processes.
  */
 const ThreadVsProcess: React.FC = () => {
+	const frame = useCurrentFrame();
+	const {fps} = useVideoConfig();
 	// 1 "MySQL gives each connection a thread", 4 "PostgreSQL forks a process".
 	const mysqlAt = cue(EP, 'engines', 1);
 	const pgAt = cue(EP, 'engines', 4);
+
+	/*
+	 * While only MySQL is being described, centre it. A lone panel sitting in a
+	 * two-up layout leaves half the frame empty for fifteen seconds. The row
+	 * eases across as PostgreSQL arrives, which also marks the transition
+	 * between the two halves of the scene.
+	 */
+	const pair = spring({
+		fps,
+		frame: frame - (pgAt - 26),
+		config: {damping: 20, mass: 1, stiffness: 70},
+	});
+	const rowShift = interpolate(pair, [0, 1], [(620 + 40) / 2, 0]);
 
 	return (
 		<SceneFrame chapter={CHAPTER} step="One connection =" narration={{episode: EP, scene: 'engines'}}>
 			<AbsoluteFill style={{alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 54}}>
 				<Heading>A connection is not the same thing in both engines</Heading>
 
-				<div style={{display: 'flex', gap: 40}}>
+				<div style={{display: 'flex', gap: 40, transform: `translateX(${rowShift}px)`}}>
 					<EnginePanel engine={engines.mysql} from={mysqlAt - 26} tagline="thread per connection" minHeight={360}>
 						<Workers
 							count={12}
@@ -170,6 +185,13 @@ const SCENES: Scene[] = [
 				title="CONNECTION"
 				subtitle="The handshake that has to happen before any SQL runs"
 				part="The life of a query"
+				agenda={[
+					'How a session gets built',
+					'What the handshake sends',
+					'Thread, or process?',
+				]}
+				// The agenda lands with the "three things" line, not before it.
+				agendaFrom={cue(EP, 'title', 2)}
 				narration={{episode: EP, scene: 'title'}}
 			/>
 		),

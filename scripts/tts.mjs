@@ -126,6 +126,8 @@ let resolvedProfileId = null;
 
 /** The length-scale for the line currently being synthesised. */
 let lineLength = piperLength;
+/** The base length-scale for the episode currently being synthesised. */
+let episodeLength = piperLength;
 
 if (!VOICES[voice]) {
 	console.error(`Unknown voice "${voice}". Options: ${Object.keys(VOICES).join(', ')}`);
@@ -244,7 +246,7 @@ const makeBreath = () =>
 /** Synthesise one line with its prosody, trimmed so the timing stays exact. */
 const speak = (line, out) => {
 	const {text, rate: lineRate, pitch, gain, end} = line;
-	lineLength = piperLength * lineRate;
+	lineLength = episodeLength * lineRate;
 
 	const raw = join(TMP, 'raw.wav');
 	const [cmd, cmdArgs] = VOICES[voice](text, raw);
@@ -317,7 +319,18 @@ for (const episodeId of episodes) {
 	mkdirSync(join(AUDIO_DIR, episodeId), {recursive: true});
 	manifest[episodeId] = {voice, scenes: {}};
 
+	/*
+	 * An episode may carry "_options": {"lengthScale": n}. Episodes differ in how
+	 * dense their sentences are, so a single global rate leaves some reading
+	 * noticeably faster than others; this pins each one to the same pace.
+	 */
+	const episodeOptions = scenes._options ?? {};
+	episodeLength = piperLength * (episodeOptions.lengthScale ?? 1);
+
 	for (const [sceneId, lines] of Object.entries(scenes)) {
+		if (sceneId.startsWith('_')) {
+			continue;
+		}
 		const parts = [];
 		const cues = [];
 		let cursor = LEAD_IN;

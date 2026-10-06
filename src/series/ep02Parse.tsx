@@ -146,6 +146,13 @@ const SCENES: Scene[] = [
 				title="PARSE"
 				subtitle="From a string on the wire to a tree the server can reason about"
 				part="The life of a query"
+				agenda={[
+					'Text into tokens',
+					'Tokens into a tree',
+					'The extra stage in Postgres',
+				]}
+				// The agenda lands with the "three things" line, not before it.
+				agendaFrom={cue(EP, 'title', 2)}
 				narration={{episode: EP, scene: 'title'}}
 			/>
 		),

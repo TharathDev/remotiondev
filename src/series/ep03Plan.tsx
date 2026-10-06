@@ -150,6 +150,13 @@ const SCENES: Scene[] = [
 				title="PLAN"
 				subtitle="Choosing the cheapest way to answer, before answering"
 				part="The life of a query"
+				agenda={[
+					'Many plans, one query',
+					'Reading EXPLAIN',
+					'Where the numbers come from',
+				]}
+				// The agenda lands with the "three things" line, not before it.
+				agendaFrom={cue(EP, 'title', 2)}
 				narration={{episode: EP, scene: 'title'}}
 			/>
 		),

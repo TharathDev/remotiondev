@@ -128,6 +128,13 @@ const SCENES: Scene[] = [
 				title="RETURN"
 				subtitle="How rows get from the executor back into your variables"
 				part="The life of a query"
+				agenda={[
+					'A stream, not a parcel',
+					'What\'s on the wire',
+					'The out-of-memory default',
+				]}
+				// The agenda lands with the "three things" line, not before it.
+				agendaFrom={cue(EP, 'title', 2)}
 				narration={{episode: EP, scene: 'title'}}
 			/>
 		),
