@@ -54,7 +54,7 @@ const piperSpeaker = flag('speaker', null);
  * Higher is slower. 1.0 is the model's natural pace. Individual lines scale
  * this with their own `rate`, which is what stops the delivery going flat.
  */
-const piperLength = Number(flag('length-scale', '0.88'));
+const piperLength = Number(flag('length-scale', '0.955'));
 
 /* Voicebox options — see the Voicebox section of the README. */
 const vbUrl = (flag('voicebox-url', 'http://127.0.0.1:17493') || '').replace(/\/$/, '');

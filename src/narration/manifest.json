@@ -4,130 +4,130 @@
 		"scenes": {
 			"title": {
 				"file": "audio/01-connection/title.mp3",
-				"frames": 302,
+				"frames": 313,
 				"lines": [
 					{
 						"text": "Your query has not run yet.",
 						"from": 14,
-						"frames": 62
+						"frames": 65
 					},
 					{
 						"text": "It has not even been read.",
-						"from": 87,
-						"frames": 57
+						"from": 90,
+						"frames": 59
 					},
 					{
 						"text": "Before any of that, something far more expensive has to happen.",
-						"from": 159,
-						"frames": 119
+						"from": 164,
+						"frames": 125
 					}
 				]
 			},
 			"handshake": {
 				"file": "audio/01-connection/handshake.mp3",
-				"frames": 850,
+				"frames": 890,
 				"lines": [
 					{
 						"text": "Nothing runs until a session exists.",
 						"from": 14,
-						"frames": 84
+						"frames": 92
 					},
 					{
 						"text": "The server speaks first.",
-						"from": 110,
-						"frames": 58
+						"from": 118,
+						"frames": 61
 					},
 					{
 						"text": "It announces its version, and the authentication methods it will accept.",
-						"from": 179,
-						"frames": 127
+						"from": 191,
+						"frames": 133
 					},
 					{
 						"text": "The client answers with credentials. Only then does a session exist.",
-						"from": 316,
-						"frames": 135
+						"from": 334,
+						"frames": 145
 					},
 					{
 						"text": "And here is the part that actually matters.",
-						"from": 465,
-						"frames": 94
+						"from": 493,
+						"frames": 96
 					},
 					{
 						"text": "Building a connection is expensive. Keeping one open is cheap.",
-						"from": 572,
-						"frames": 126
+						"from": 603,
+						"frames": 131
 					},
 					{
 						"text": "That asymmetry is the entire argument for connection pooling.",
-						"from": 711,
-						"frames": 115
+						"from": 746,
+						"frames": 120
 					}
 				]
 			},
 			"engines": {
 				"file": "audio/01-connection/engines.mp3",
-				"frames": 1060,
+				"frames": 1130,
 				"lines": [
 					{
 						"text": "But a connection is not the same thing in both engines.",
 						"from": 14,
-						"frames": 115
-					},
-					{
-						"text": "MySQL gives each connection a thread, inside one server process.",
-						"from": 142,
-						"frames": 143
-					},
-					{
-						"text": "Threads share an address space, so a new connection is cheap.",
-						"from": 295,
-						"frames": 131
-					},
-					{
-						"text": "But one bad thread can take the whole server down with it.",
-						"from": 436,
 						"frames": 119
 					},
 					{
+						"text": "MySQL gives each connection a thread, inside one server process.",
+						"from": 146,
+						"frames": 150
+					},
+					{
+						"text": "Threads share an address space, so a new connection is cheap.",
+						"from": 307,
+						"frames": 137
+					},
+					{
+						"text": "But one bad thread can take the whole server down with it.",
+						"from": 454,
+						"frames": 130
+					},
+					{
 						"text": "PostgreSQL forks a separate operating system process for every connection.",
-						"from": 570,
-						"frames": 149
+						"from": 599,
+						"frames": 159
 					},
 					{
 						"text": "Processes are isolated. A crash costs you one backend, not the server.",
-						"from": 729,
-						"frames": 153
+						"from": 768,
+						"frames": 172
 					},
 					{
 						"text": "But each one costs real memory. That is why PgBouncer exists.",
-						"from": 893,
-						"frames": 144
+						"from": 951,
+						"frames": 156
 					}
 				]
 			},
 			"end": {
 				"file": "audio/01-connection/end.mp3",
-				"frames": 543,
+				"frames": 573,
 				"lines": [
 					{
 						"text": "So: the server speaks first, the client answers, and only then does a session exist.",
 						"from": 14,
-						"frames": 166
+						"frames": 179
 					},
 					{
 						"text": "MySQL gives you a thread. PostgreSQL gives you a process.",
-						"from": 191,
-						"frames": 141
+						"from": 204,
+						"frames": 149
 					},
 					{
 						"text": "Either way, the connection is the expensive part. Pool it.",
-						"from": 343,
-						"frames": 116
+						"from": 364,
+						"frames": 121
 					},
 					{
 						"text": "Next, we parse.",
-						"from": 474,
-						"frames": 45
+						"from": 500,
+						"frames": 49
 					}
 				]
 			}
