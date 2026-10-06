@@ -39,12 +39,15 @@ src/
   Root.tsx            <Composition id="MyComp" ... /> — 1920x1080, 30fps
   MyComp.tsx          The film: four scenes joined by a TransitionSeries
   theme.ts            Palette, type stack, beat grid
-  scenes/
-    Open.tsx          A dot arrives, stretches into a rule, the title rises off it
-    Primitives.tsx    Three cards, each running the primitive it names
-    Deterministic.tsx A bar field that is a pure function of (index, frame)
-    Outro.tsx         The bars fall back into the dot — the film ends where it began
+  scenes/             The intro film's four scenes
   components/         KineticText, Seed, StarField, Grain, Vignette, Caption
+  kit/                Shared building blocks for the series (see below)
+  series/             One file per episode, plus registry.ts
+  narration/          scripts.json (written by hand) and manifest.json (generated)
+scripts/
+  tts.mjs             Narration -> public/audio + manifest.json
+  render-all.mjs      Renders every episode to out/
+  concat.mjs          Joins the episodes with ffmpeg -c copy
 public/               staticFile() assets
 media/                The committed film and its poster frame
 out/                  Render output (gitignored)
@@ -60,6 +63,90 @@ transition per cut, so the composition length can never drift out of sync with t
 Everything is frame-driven. There is no `Math.random()` anywhere: the dust field, the film
 grain and the bar amplitudes all come from Remotion's seeded `random()`, so frame 397 is
 byte-identical on every machine and every re-render.
+
+
+## The MySQL / PostgreSQL series
+
+A narrated explainer series. Each operation is its own Remotion composition and
+renders to its own MP4, so an episode can be rewritten, re-rendered or dropped
+without touching the others, then joined at the end.
+
+```bash
+npm run tts                     # synthesise narration -> public/audio + manifest
+npm run render:all              # every episode -> out/01-connection.mp4, ...
+npm run render:all 03-plan      # just one, after you change it
+npm run concat                  # join them in order -> out/series.mp4
+```
+
+The join uses ffmpeg's concat demuxer with `-c copy`. Every composition is
+1920x1080 / 30fps with the same codecs, so it is a stream copy: no re-encode, no
+generation loss, about a second.
+
+### Adding or changing an episode
+
+`src/series/registry.ts` is the single source of truth. One entry per episode:
+
+```ts
+{id: '03-plan', number: '03', title: 'Plan', durationInFrames: EP03_DURATION, component: Ep03Plan}
+```
+
+`Root.tsx` registers a `<Composition>` per entry and `scripts/render-all.mjs`
+renders one file per entry, so adding an episode is one line plus its scene file.
+
+### The kit
+
+`src/kit/` is why each episode file stays short. Episodes compose these rather
+than hand-rolling layout, so a change to the palette or the type scale lands
+everywhere at once.
+
+| Component | Use |
+|---|---|
+| `SceneFrame` | Background, grid, episode chrome, narration, captions, vignette, grain |
+| `Film` | Joins scenes with a consistent cut **and** derives the episode's duration from them |
+| `TitleCard` / `EndCard` | The opening and closing card every episode shares |
+| `SqlBlock` | SQL typed out and syntax-coloured, via a small deterministic tokenizer in `sql.ts` |
+| `Stage` / `Connector` | Pipeline boxes and the packet travelling between them, horizontal or vertical |
+| `Tree` | Parse and plan trees, laid out from a nested object |
+| `CostMeter` | Candidate plan costs on a shared scale |
+| `PageGrid` | A buffer pool, with hit and miss |
+| `DataTable` | Result sets and heap pages, with live and dead rows |
+| `EnginePanel` | One side of a MySQL / PostgreSQL comparison, in that engine's hue |
+| `Callout`, `Panel`, `Heading`, `Badge` | The small shared pieces |
+
+### Narration
+
+Narration is written in `src/narration/scripts.json`, one array of lines per
+scene. `npm run tts` synthesises each line separately, trims its silence, joins
+the lines with a fixed gap, and writes both the audio and
+`src/narration/manifest.json`, which records the exact start frame of every
+line.
+
+Scenes then lay themselves out **from that manifest**:
+
+```tsx
+const mysqlAt = cue(EP, 'engines', 1);          // frame that sentence starts on
+<EnginePanel from={mysqlAt - 26} ... />          // panel arrives just before it
+<Callout from={mysqlAt} ... />                   // callout lights as it is spoken
+```
+
+and scene durations come from `sceneFrames(EP, scene)` rather than a constant.
+So editing a sentence and re-running `npm run tts` re-times the film — there are
+no hand-tuned frame numbers to chase.
+
+All of it runs offline, with no API keys. Four voices are wired up:
+
+```bash
+npm run tts -- --voice=pico       # default, the most natural of the four
+npm run tts -- --voice=festival   # Festival HTS (cmu_us_slt)
+npm run tts -- --voice=mbrola     # eSpeak NG driving MBROLA us1
+npm run tts -- --voice=espeak     # eSpeak NG on its own
+npm run tts -- --rate=0.95        # slow the delivery down
+```
+
+They need `pico2wave`, `festival` + `festvox-us-slt-hts`, `mbrola` + `mbrola-us1`,
+`espeak-ng` and `sox` on `PATH`. To swap in a cloud voice later, replace the one
+`VOICES` table in `scripts/tts.mjs`; nothing else changes, because everything
+downstream reads the manifest.
 
 ## Rendering
 
