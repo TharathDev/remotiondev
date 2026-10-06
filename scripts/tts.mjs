@@ -44,6 +44,12 @@ const rate = Number(flag('rate', '1'));
 const polish = flag('polish', 'on') !== 'off';
 const only = args.filter((a) => !a.startsWith('--'));
 
+/* Piper options — a local neural voice, see the README. */
+const piperModel = flag('model', 'models/piper/en_US-lessac-medium.onnx');
+const piperSpeaker = flag('speaker', null);
+/* Higher is slower. 1.0 is the model's natural pace; narration reads better a touch slower. */
+const piperLength = flag('length-scale', '1.05');
+
 /* Voicebox options — see the Voicebox section of the README. */
 const vbUrl = (flag('voicebox-url', 'http://127.0.0.1:17493') || '').replace(/\/$/, '');
 const vbProfile = flag('profile', null);
@@ -59,6 +65,24 @@ const VOICES = {
 	],
 	mbrola: (text, out) => ['espeak-ng', ['-v', 'mb-us1', '-s', '150', '-w', out, text]],
 	espeak: (text, out) => ['espeak-ng', ['-v', 'en-us+f3', '-s', '150', '-p', '45', '-w', out, text]],
+
+	/*
+	 * Piper (https://github.com/OHF-Voice/piper1-gpl) — a real neural voice that
+	 * runs on CPU, offline, with no model download at run time. `pip install
+	 * piper-tts` ships the runtime and the espeak-ng phonemizer; the only thing
+	 * it needs is a voice: an .onnx file and its .onnx.json config, which live
+	 * in models/piper/ (see the README for where to get one).
+	 */
+	piper: (text, out) => [
+		'python3',
+		[
+			'-m', 'piper',
+			'-m', piperModel,
+			'-f', out,
+			'--length-scale', piperLength,
+			...(piperSpeaker ? ['-s', piperSpeaker] : []),
+		],
+	],
 
 	/*
 	 * Voicebox (https://github.com/jamiepine/voicebox) running locally: a real
@@ -95,7 +119,11 @@ if (!VOICES[voice]) {
 	process.exit(1);
 }
 
-const sh = (cmd, cmdArgs) => execFileSync(cmd, cmdArgs, {stdio: ['ignore', 'pipe', 'pipe']});
+const sh = (cmd, cmdArgs, stdin) =>
+	execFileSync(cmd, cmdArgs, {
+		stdio: [stdin === undefined ? 'ignore' : 'pipe', 'pipe', 'pipe'],
+		...(stdin === undefined ? {} : {input: stdin}),
+	});
 
 /**
  * Turns --profile (a name or an id) into the profile id Voicebox wants, and
@@ -143,6 +171,15 @@ if (voice === 'voicebox') {
 	resolvedProfileId = resolveVoiceboxProfile();
 }
 
+if (voice === 'piper' && !existsSync(join(root, piperModel))) {
+	console.error(`No Piper voice at ${piperModel}`);
+	console.error('Download one from https://huggingface.co/rhasspy/piper-voices');
+	console.error('(audition them first at https://rhasspy.github.io/piper-samples/)');
+	console.error('You need both the .onnx and its .onnx.json, in the same folder.');
+	console.error('Point at a different file with --model=path/to/voice.onnx');
+	process.exit(1);
+}
+
 const duration = (file) =>
 	Number(
 		sh('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', file])
@@ -157,7 +194,7 @@ const silence = (seconds, out) =>
 const speak = (text, out) => {
 	const raw = join(TMP, 'raw.wav');
 	const [cmd, cmdArgs] = VOICES[voice](text, raw);
-	sh(cmd, cmdArgs);
+	sh(cmd, cmdArgs, voice === 'piper' ? text : undefined);
 
 	const chain = ['-r', '48000', '-c', '1', '-b', '16', out];
 	// Trim silence from both ends so the gap between lines is exactly GAP.
@@ -171,7 +208,7 @@ const speak = (text, out) => {
 	 * only gets levelled.
 	 */
 	const tone =
-		polish && voice !== 'voicebox'
+		polish && voice !== 'voicebox' && voice !== 'piper'
 			? [
 					'highpass', '90',
 					'equalizer', '3500', '1.2q', '+4',
