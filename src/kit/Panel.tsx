@@ -1,6 +1,7 @@
 import React from 'react';
 import {interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
 import {theme} from '../theme';
+import {idleX, idleY} from './motion';
 
 type Props = {
 	children: React.ReactNode;
@@ -38,11 +39,9 @@ export const Panel: React.FC<Props> = ({
 				borderRadius: 22,
 				padding,
 				opacity: enter,
-				transform: `translateY(${interpolate(enter, [0, 1], [48, 0])}px) scale(${interpolate(
-					enter,
-					[0, 1],
-					[0.96, 1],
-				)})`,
+				transform: `translate(${idleX(frame, title ?? 'panel', 1.1)}px, ${
+					interpolate(enter, [0, 1], [48, 0]) + idleY(frame, title ?? 'panel', 1.8)
+				}px) scale(${interpolate(enter, [0, 1], [0.96, 1])})`,
 			}}
 		>
 			{title ? (

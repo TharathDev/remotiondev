@@ -22,9 +22,11 @@ const CHAPTER = '01 · Connection';
  * 2 the client answers · 3 connections are expensive.
  */
 const Handshake: React.FC = () => {
+	// Line indices into the handshake narration: 1 "the server speaks first",
+	// 3 "the client answers with credentials", 5 "building a connection is expensive".
 	const serverSpeaks = cue(EP, 'handshake', 1);
-	const clientAnswers = cue(EP, 'handshake', 2);
-	const cost = cue(EP, 'handshake', 3);
+	const clientAnswers = cue(EP, 'handshake', 3);
+	const cost = cue(EP, 'handshake', 5);
 
 	return (
 		<SceneFrame chapter={CHAPTER} step="Before the query" narration={{episode: EP, scene: 'handshake'}}>
@@ -102,8 +104,9 @@ const Workers: React.FC<{count: number; accent: string; from: number; label: str
  * Narration lines: 0 not the same thing · 1 MySQL threads · 2 PostgreSQL processes.
  */
 const ThreadVsProcess: React.FC = () => {
+	// 1 "MySQL gives each connection a thread", 4 "PostgreSQL forks a process".
 	const mysqlAt = cue(EP, 'engines', 1);
-	const pgAt = cue(EP, 'engines', 2);
+	const pgAt = cue(EP, 'engines', 4);
 
 	return (
 		<SceneFrame chapter={CHAPTER} step="One connection =" narration={{episode: EP, scene: 'engines'}}>

@@ -29,10 +29,13 @@ const TMP = join(root, '.tts-tmp');
 export const FPS = 30;
 /** Silence before the first line of a scene. */
 const LEAD_IN = 0.45;
-/** Silence between lines. */
-const GAP = 0.42;
+/**
+ * Silence between lines. Deliberately tight: a line that needs room to land
+ * asks for it with its own `pause`, instead of every line paying for it.
+ */
+const GAP = 0.20;
 /** Silence after the last line, so a cut never clips the final word. */
-const TAIL = 1.1;
+const TAIL = 0.75;
 
 const args = process.argv.slice(2);
 const flag = (name, fallback) => {
@@ -47,8 +50,11 @@ const only = args.filter((a) => !a.startsWith('--'));
 /* Piper options — a local neural voice, see the README. */
 const piperModel = flag('model', 'models/piper/en_US-lessac-medium.onnx');
 const piperSpeaker = flag('speaker', null);
-/* Higher is slower. 1.0 is the model's natural pace; narration reads better a touch slower. */
-const piperLength = flag('length-scale', '1.05');
+/*
+ * Higher is slower. 1.0 is the model's natural pace. Individual lines scale
+ * this with their own `rate`, which is what stops the delivery going flat.
+ */
+const piperLength = Number(flag('length-scale', '0.88'));
 
 /* Voicebox options — see the Voicebox section of the README. */
 const vbUrl = (flag('voicebox-url', 'http://127.0.0.1:17493') || '').replace(/\/$/, '');
@@ -79,7 +85,11 @@ const VOICES = {
 			'-m', 'piper',
 			'-m', piperModel,
 			'-f', out,
-			'--length-scale', piperLength,
+			'--length-scale', String(lineLength),
+			// Raises variation in duration and pitch between phonemes, which is
+			// most of the difference between "read aloud" and "spoken".
+			'--noise-scale', '0.7',
+			'--noise-w-scale', '0.85',
 			...(piperSpeaker ? ['-s', piperSpeaker] : []),
 		],
 	],
@@ -113,6 +123,9 @@ const VOICES = {
 
 /** Filled in before synthesis when --voice=voicebox. */
 let resolvedProfileId = null;
+
+/** The length-scale for the line currently being synthesised. */
+let lineLength = piperLength;
 
 if (!VOICES[voice]) {
 	console.error(`Unknown voice "${voice}". Options: ${Object.keys(VOICES).join(', ')}`);
@@ -190,16 +203,59 @@ const duration = (file) =>
 const silence = (seconds, out) =>
 	sh('sox', ['-n', '-r', '48000', '-c', '1', '-b', '16', out, 'trim', '0', String(seconds)]);
 
-/** Synthesise one line, trim its leading and trailing silence, normalise it. */
-const speak = (text, out) => {
+/**
+ * A script line is either a plain string or an object with prosody overrides:
+ *
+ *   {text, rate, pitch, gain, pause, breath, end}
+ *
+ *   rate   multiplies the base length-scale. <1 is faster, >1 is slower.
+ *   pitch  cents, applied after synthesis. Negative is lower.
+ *   gain   dB, for lines that carry weight.
+ *   pause  extra seconds held AFTER this line, to let a point land.
+ *   breath an inhale before the line, for a new thought.
+ *   end    'fall' for an authoritative finish, 'rise' for a real question,
+ *          'flat' to leave it alone. Inferred from the punctuation by default.
+ */
+const normalizeLine = (line) => {
+	const base = typeof line === 'string' ? {text: line} : {...line};
+	const text = base.text.trim();
+	return {
+		text,
+		rate: base.rate ?? 1,
+		pitch: base.pitch ?? 0,
+		gain: base.gain ?? 0,
+		pause: base.pause ?? 0,
+		breath: base.breath ?? false,
+		end: base.end ?? (text.endsWith('?') ? 'rise' : 'fall'),
+	};
+};
+
+/** A quiet filtered-noise inhale. Cheap, and it reads as a breath under speech. */
+const breathFile = join(TMP, 'breath.wav');
+const makeBreath = () =>
+	sh('sox', [
+		'-n', '-r', '48000', '-c', '1', '-b', '16', breathFile,
+		'synth', '0.26', 'pinknoise',
+		'band', '-n', '1100', '1300',
+		'gain', '-34',
+		'fade', 't', '0.10', '0.26', '0.12',
+	]);
+
+/** Synthesise one line with its prosody, trimmed so the timing stays exact. */
+const speak = (line, out) => {
+	const {text, rate: lineRate, pitch, gain, end} = line;
+	lineLength = piperLength * lineRate;
+
 	const raw = join(TMP, 'raw.wav');
 	const [cmd, cmdArgs] = VOICES[voice](text, raw);
 	sh(cmd, cmdArgs, voice === 'piper' ? text : undefined);
 
-	const chain = ['-r', '48000', '-c', '1', '-b', '16', out];
+	const staged = join(TMP, 'staged.wav');
+	const chain = ['-r', '48000', '-c', '1', '-b', '16', staged];
 	// Trim silence from both ends so the gap between lines is exactly GAP.
 	const trim = ['silence', '1', '0.05', '0.25%', 'reverse', 'silence', '1', '0.05', '0.25%', 'reverse'];
 	const tempo = rate !== 1 ? ['tempo', '-s', String(rate)] : [];
+	const shift = pitch !== 0 ? ['pitch', String(pitch)] : [];
 
 	/*
 	 * The offline synths are thin and boxy. A high-pass, a presence lift around
@@ -219,7 +275,24 @@ const speak = (text, out) => {
 				]
 			: [];
 
-	sh('sox', [raw, ...chain, ...tone, ...trim, ...tempo, 'gain', '-n', '-2.5']);
+	sh('sox', [raw, ...chain, ...tone, ...trim, ...tempo, ...shift, 'gain', '-n', String(-2.5 + gain)]);
+
+	/*
+	 * Ending inflection, applied over the tail of the finished line: pitch drops
+	 * on a statement so it lands, and lifts on a genuine question. Without this
+	 * every sentence ends on the same note, which is most of what makes TTS
+	 * sound like TTS.
+	 */
+	const seconds = duration(staged);
+	const bendWindow = Math.min(0.38, seconds * 0.3);
+	const bendAt = Math.max(0, seconds - bendWindow).toFixed(3);
+	const cents = end === 'rise' ? 70 : end === 'fall' ? -55 : 0;
+
+	if (cents === 0 || seconds < 0.5) {
+		sh('sox', [staged, out]);
+	} else {
+		sh('sox', [staged, out, 'bend', `${bendAt},${cents},${bendWindow.toFixed(3)}`]);
+	}
 };
 
 const scripts = JSON.parse(readFileSync(SCRIPTS, 'utf8'));
@@ -233,6 +306,7 @@ if (unknown.length > 0) {
 
 rmSync(TMP, {recursive: true, force: true});
 mkdirSync(TMP, {recursive: true});
+makeBreath();
 
 const manifest = existsSync(MANIFEST) ? JSON.parse(readFileSync(MANIFEST, 'utf8')) : {};
 
@@ -252,25 +326,34 @@ for (const episodeId of episodes) {
 		silence(LEAD_IN, lead);
 		parts.push(lead);
 
-		lines.forEach((text, i) => {
+		lines.map(normalizeLine).forEach((line, i, all) => {
+			// A breath belongs to the line it precedes, so it is part of that
+			// line's cue: the caption appears as the speaker draws breath.
+			if (line.breath) {
+				parts.push(breathFile);
+			}
+			const breathSeconds = line.breath ? duration(breathFile) : 0;
+
 			const lineFile = join(TMP, `${sceneId}-${i}.wav`);
-			speak(text, lineFile);
+			speak(line, lineFile);
 			const seconds = duration(lineFile);
 
 			cues.push({
-				text,
+				text: line.text,
 				from: Math.round(cursor * FPS),
-				frames: Math.round(seconds * FPS),
+				frames: Math.round((breathSeconds + seconds) * FPS),
 			});
 
 			parts.push(lineFile);
-			cursor += seconds;
+			cursor += breathSeconds + seconds;
 
-			if (i < lines.length - 1) {
+			if (i < all.length - 1) {
+				// The line's own `pause` buys thinking time before whatever is next.
+				const hold = GAP + line.pause;
 				const gap = join(TMP, `gap-${sceneId}-${i}.wav`);
-				silence(GAP, gap);
+				silence(hold, gap);
 				parts.push(gap);
-				cursor += GAP;
+				cursor += hold;
 			}
 		});
 

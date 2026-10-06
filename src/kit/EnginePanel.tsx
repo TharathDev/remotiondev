@@ -2,6 +2,7 @@ import React from 'react';
 import {interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
 import {Engine, theme} from '../theme';
 import {Badge} from './Badge';
+import {idleX, idleY} from './motion';
 
 type Props = {
 	engine: Engine;
@@ -41,7 +42,9 @@ export const EnginePanel: React.FC<Props> = ({
 				borderRadius: 24,
 				padding: 34,
 				opacity: enter,
-				transform: `translateY(${interpolate(enter, [0, 1], [52, 0])}px)`,
+				transform: `translate(${idleX(frame, engine.key, 1.3)}px, ${
+					interpolate(enter, [0, 1], [52, 0]) + idleY(frame, engine.key, 2)
+				}px)`,
 				display: 'flex',
 				flexDirection: 'column',
 			}}

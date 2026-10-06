@@ -1,6 +1,7 @@
 import React from 'react';
 import {interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
 import {theme} from '../theme';
+import {accent as accentPulse, idleX, idleY} from './motion';
 
 type Props = {
 	label: string;
@@ -49,9 +50,9 @@ export const Stage: React.FC<Props> = ({
 				boxShadow: lit > 0 ? `0 0 ${34 * lit}px ${accent}44` : undefined,
 				textAlign: 'center',
 				opacity: enter,
-				transform: `translateY(${interpolate(enter, [0, 1], [34, 0])}px) scale(${
-					1 + 0.04 * lit
-				})`,
+				transform: `translate(${idleX(frame, label)}px, ${
+					interpolate(enter, [0, 1], [34, 0]) + idleY(frame, label)
+				}px) scale(${1 + 0.04 * lit + 0.05 * (active ? accentPulse(frame, active[0]) : 0)})`,
 				flexShrink: 0,
 			}}
 		>

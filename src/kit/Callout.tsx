@@ -1,6 +1,7 @@
 import React from 'react';
 import {interpolate, useCurrentFrame} from 'remotion';
 import {theme} from '../theme';
+import {accent as accentPulse} from './motion';
 
 type Props = {
 	children: React.ReactNode;
@@ -31,7 +32,9 @@ export const Callout: React.FC<Props> = ({
 				alignItems: 'flex-start',
 				gap: 18,
 				opacity: enter,
-				transform: `translateX(${interpolate(enter, [0, 1], [-20, 0])}px)`,
+				transform: `translateX(${
+					interpolate(enter, [0, 1], [-20, 0]) + accentPulse(frame, from, 6)
+				}px)`,
 			}}
 		>
 			<div style={{width: 3, alignSelf: 'stretch', background: accent, borderRadius: 2, flexShrink: 0}} />
