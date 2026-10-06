@@ -206,6 +206,24 @@ const silence = (seconds, out) =>
 	sh('sox', ['-n', '-r', '48000', '-c', '1', '-b', '16', out, 'trim', '0', String(seconds)]);
 
 /**
+ * Respellings for words the phonemizer gets wrong. The key is what appears on
+ * screen in the caption; the value is what is actually synthesised.
+ *
+ * Verified by reading espeak-ng's phoneme output rather than by ear:
+ *   espeak-ng -q -x -v en-us "PostgreSQL"      -> p'oUstg3r- ,Eskj,u:'El   (wrong)
+ *   espeak-ng -q -x -v en-us "Post-gress Q L"  -> p'oUstgr'Es kj'u: 'El    (right)
+ *
+ * MySQL, InnoDB, PgBouncer, pg_statistic and shared_buffers already come out
+ * correctly and are deliberately absent.
+ */
+const PRONOUNCE = [
+	[/PostgreSQL/g, 'Post-gress Q L'],
+];
+
+/** Rewrite a line for the synthesiser. The caption keeps the original spelling. */
+const forSpeech = (text) => PRONOUNCE.reduce((out, [re, sub]) => out.replace(re, sub), text);
+
+/**
  * A script line is either a plain string or an object with prosody overrides:
  *
  *   {text, rate, pitch, gain, pause, breath, end}
@@ -223,6 +241,9 @@ const normalizeLine = (line) => {
 	const text = base.text.trim();
 	return {
 		text,
+		// `say` lets a line override the spoken form outright; otherwise the
+		// pronunciation table handles it.
+		say: (base.say ?? forSpeech(text)).trim(),
 		rate: base.rate ?? 1,
 		pitch: base.pitch ?? 0,
 		gain: base.gain ?? 0,
@@ -245,12 +266,12 @@ const makeBreath = () =>
 
 /** Synthesise one line with its prosody, trimmed so the timing stays exact. */
 const speak = (line, out) => {
-	const {text, rate: lineRate, pitch, gain, end} = line;
+	const {say, rate: lineRate, pitch, gain, end} = line;
 	lineLength = episodeLength * lineRate;
 
 	const raw = join(TMP, 'raw.wav');
-	const [cmd, cmdArgs] = VOICES[voice](text, raw);
-	sh(cmd, cmdArgs, voice === 'piper' ? text : undefined);
+	const [cmd, cmdArgs] = VOICES[voice](say, raw);
+	sh(cmd, cmdArgs, voice === 'piper' ? say : undefined);
 
 	const staged = join(TMP, 'staged.wav');
 	const chain = ['-r', '48000', '-c', '1', '-b', '16', staged];
