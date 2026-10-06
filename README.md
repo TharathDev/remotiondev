@@ -144,9 +144,56 @@ npm run tts -- --rate=0.95        # slow the delivery down
 ```
 
 They need `pico2wave`, `festival` + `festvox-us-slt-hts`, `mbrola` + `mbrola-us1`,
-`espeak-ng` and `sox` on `PATH`. To swap in a cloud voice later, replace the one
-`VOICES` table in `scripts/tts.mjs`; nothing else changes, because everything
-downstream reads the manifest.
+`espeak-ng` and `sox` on `PATH`. A presence-EQ and compression chain is applied
+to these by default (`--polish=off` to skip it); it sharpens the consonants but
+cannot make an old synth sound modern.
+
+### Your own voice, via Voicebox
+
+The offline voices above are 1990s-era formant and diphone synths. They are
+intelligible and they cost nothing, but they will never sound good. For a real
+neural voice — including one cloned from your own recordings —
+[Voicebox](https://github.com/jamiepine/voicebox) is wired in as a backend.
+
+**This has to run on your machine, not in a cloud session.** Voicebox downloads
+its models from Hugging Face on first use, and it is driven over localhost.
+
+```bash
+# 1. Run Voicebox — the desktop app, or headless from a checkout of the fork:
+python -m backend.main --host 127.0.0.1 --port 17493
+
+# 2. Create or clone a voice profile in the app.
+
+# 3. From a local checkout of THIS repo, list the profiles:
+npm run tts -- --voice=voicebox
+#    → prints every profile with its id
+
+# 4. Regenerate the whole series in that voice:
+npm run tts -- --voice=voicebox --profile="My Voice"
+
+# 5. Re-render:
+npm run render:all && npm run concat
+```
+
+Useful flags:
+
+| Flag | Default | Notes |
+|---|---|---|
+| `--profile=` | — | Profile name (case-insensitive) or id. Required. |
+| `--engine=` | profile default | `qwen`, `kokoro`, `chatterbox`, `chatterbox_turbo`, `luxtts`, `tada` |
+| `--voicebox-url=` | `http://127.0.0.1:17493` | If Voicebox runs elsewhere |
+| `--language=` | `en` | 23 languages supported |
+| `--polish=off` | on | Skips the EQ/compression chain, which only helps the offline synths |
+
+Because everything downstream reads `manifest.json`, swapping the voice changes
+nothing else: scene durations, caption timing and callout cues all re-derive
+from the new audio. Commit the regenerated `public/audio/**` and
+`src/narration/manifest.json` and the rendered films follow.
+
+To swap in a different provider entirely — ElevenLabs, OpenAI, a local Piper —
+add one entry to the `VOICES` table in `scripts/tts.mjs`. That table is the only
+place that knows how audio gets made.
+
 
 ## Rendering
 

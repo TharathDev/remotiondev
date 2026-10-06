@@ -41,7 +41,14 @@ const flag = (name, fallback) => {
 };
 const voice = flag('voice', 'pico');
 const rate = Number(flag('rate', '1'));
+const polish = flag('polish', 'on') !== 'off';
 const only = args.filter((a) => !a.startsWith('--'));
+
+/* Voicebox options — see the Voicebox section of the README. */
+const vbUrl = (flag('voicebox-url', 'http://127.0.0.1:17493') || '').replace(/\/$/, '');
+const vbProfile = flag('profile', null);
+const vbEngine = flag('engine', null);
+const vbLanguage = flag('language', 'en');
 
 /** Each backend writes a mono WAV at its own sample rate; sox normalises after. */
 const VOICES = {
@@ -52,7 +59,36 @@ const VOICES = {
 	],
 	mbrola: (text, out) => ['espeak-ng', ['-v', 'mb-us1', '-s', '150', '-w', out, text]],
 	espeak: (text, out) => ['espeak-ng', ['-v', 'en-us+f3', '-s', '150', '-p', '45', '-w', out, text]],
+
+	/*
+	 * Voicebox (https://github.com/jamiepine/voicebox) running locally: a real
+	 * neural voice, including one cloned from your own recordings. Its
+	 * /generate/stream endpoint answers with WAV bytes synchronously, which is
+	 * exactly the shape this script wants.
+	 *
+	 * Voicebox has to be running on the same machine as this script — it is a
+	 * desktop app, and its models are downloaded from Hugging Face on first use.
+	 */
+	voicebox: (text, out) => [
+		'curl',
+		[
+			'-sS', '--fail-with-body', '--max-time', '300',
+			'-X', 'POST', `${vbUrl}/generate/stream`,
+			'-H', 'Content-Type: application/json',
+			'-d', JSON.stringify({
+				profile_id: resolvedProfileId,
+				text,
+				language: vbLanguage,
+				normalize: true,
+				...(vbEngine ? {engine: vbEngine} : {}),
+			}),
+			'-o', out,
+		],
+	],
 };
+
+/** Filled in before synthesis when --voice=voicebox. */
+let resolvedProfileId = null;
 
 if (!VOICES[voice]) {
 	console.error(`Unknown voice "${voice}". Options: ${Object.keys(VOICES).join(', ')}`);
@@ -60,6 +96,52 @@ if (!VOICES[voice]) {
 }
 
 const sh = (cmd, cmdArgs) => execFileSync(cmd, cmdArgs, {stdio: ['ignore', 'pipe', 'pipe']});
+
+/**
+ * Turns --profile (a name or an id) into the profile id Voicebox wants, and
+ * fails early with something actionable if Voicebox is not running.
+ */
+const resolveVoiceboxProfile = () => {
+	let profiles;
+	try {
+		profiles = JSON.parse(sh('curl', ['-sS', '--fail', '--max-time', '10', `${vbUrl}/profiles`]).toString());
+	} catch {
+		console.error(`Could not reach Voicebox at ${vbUrl}.`);
+		console.error('Start the Voicebox app (or its backend) on this machine, then try again.');
+		console.error('Override the address with --voicebox-url=http://host:port');
+		process.exit(1);
+	}
+
+	const list = Array.isArray(profiles) ? profiles : (profiles.profiles ?? []);
+	if (list.length === 0) {
+		console.error('Voicebox is running but has no voice profiles. Create or clone one in the app first.');
+		process.exit(1);
+	}
+
+	const names = list.map((p) => `${p.name} (${p.id})`).join('\n  ');
+
+	if (!vbProfile) {
+		console.error('Pick a voice with --profile="<name or id>". Available:\n  ' + names);
+		process.exit(1);
+	}
+
+	const match =
+		list.find((p) => p.id === vbProfile) ??
+		list.find((p) => (p.name ?? '').toLowerCase() === vbProfile.toLowerCase());
+
+	if (!match) {
+		console.error(`No Voicebox profile matches "${vbProfile}". Available:`);
+		console.error('  ' + names);
+		process.exit(1);
+	}
+
+	console.log(`Voicebox profile: ${match.name} (${match.id})`);
+	return match.id;
+};
+
+if (voice === 'voicebox') {
+	resolvedProfileId = resolveVoiceboxProfile();
+}
 
 const duration = (file) =>
 	Number(
@@ -77,11 +159,30 @@ const speak = (text, out) => {
 	const [cmd, cmdArgs] = VOICES[voice](text, raw);
 	sh(cmd, cmdArgs);
 
-	const chain = ['-r', '48000', '-c', '1', '-b', '16', out, 'gain', '-n', '-2.5'];
+	const chain = ['-r', '48000', '-c', '1', '-b', '16', out];
 	// Trim silence from both ends so the gap between lines is exactly GAP.
 	const trim = ['silence', '1', '0.05', '0.25%', 'reverse', 'silence', '1', '0.05', '0.25%', 'reverse'];
 	const tempo = rate !== 1 ? ['tempo', '-s', String(rate)] : [];
-	sh('sox', [raw, ...chain, ...trim, ...tempo]);
+
+	/*
+	 * The offline synths are thin and boxy. A high-pass, a presence lift around
+	 * 3.5 kHz and gentle compression make the consonants land without making it
+	 * sound processed. Voicebox output is already a finished neural voice, so it
+	 * only gets levelled.
+	 */
+	const tone =
+		polish && voice !== 'voicebox'
+			? [
+					'highpass', '90',
+					'equalizer', '3500', '1.2q', '+4',
+					'equalizer', '250', '1.0q', '-2',
+					// Headroom first: the EQ lift alone is enough to clip the compressor.
+					'gain', '-4',
+					'compand', '0.02,0.20', '-35,-22,-18,-9,-6,-4', '-2',
+				]
+			: [];
+
+	sh('sox', [raw, ...chain, ...tone, ...trim, ...tempo, 'gain', '-n', '-2.5']);
 };
 
 const scripts = JSON.parse(readFileSync(SCRIPTS, 'utf8'));
