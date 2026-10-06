@@ -2,7 +2,7 @@
   "name": "remotiondev",
   "version": "1.0.0",
   "private": true,
-  "description": "Remotion video app — React components rendered frame by frame to video.",
+  "description": "Remotion video app \u2014 React components rendered frame by frame to video.",
   "scripts": {
     "dev": "remotion studio",
     "studio": "remotion studio",
@@ -10,7 +10,9 @@
     "render": "remotion render",
     "still": "remotion still",
     "typecheck": "tsc --noEmit",
-    "upgrade": "remotion upgrade"
+    "upgrade": "remotion upgrade",
+    "render:all": "node scripts/render-all.mjs",
+    "concat": "node scripts/concat.mjs"
   },
   "dependencies": {
     "@remotion/cli": "4.0.533",
