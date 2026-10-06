@@ -46,9 +46,9 @@ const Candidates: React.FC = () => (
 			</Panel>
 
 			<div style={{width: 1200}}>
-				<Callout from={cue(EP, 'candidates', 4)} label="The rule">
-					The planner never asks which plan is fastest. It asks which plan it <em>estimates</em>{' '}
-					is cheapest — and it is only as right as its statistics.
+				{/* One line: the narration says the rest. */}
+				<Callout from={cue(EP, 'candidates', 4)} label="The rule" size={30}>
+					Cheapest <em>estimate</em>, not fastest plan.
 				</Callout>
 			</div>
 		</AbsoluteFill>

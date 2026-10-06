@@ -45,12 +45,6 @@ const Streaming: React.FC = () => (
 				<DataTable columns={['id', 'email', 'created']} rows={ROWS} from={cue(EP, 'streaming', 1) + 24} size={30} />
 			</Panel>
 
-			<div style={{width: 1100}}>
-				<Callout from={cue(EP, 'streaming', 2)} label="Why this matters">
-					A driver that materialises the whole result set before handing you the first row
-					throws this away — and your memory with it.
-				</Callout>
-			</div>
 		</AbsoluteFill>
 	</SceneFrame>
 );

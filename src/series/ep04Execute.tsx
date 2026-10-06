@@ -21,31 +21,40 @@ const CHAPTER = '04 · Execute';
 const PullModel: React.FC = () => (
 	<SceneFrame chapter={CHAPTER} step="The iterator model" narration={{episode: EP, scene: 'pull'}}>
 		<AbsoluteFill style={{alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 90}}>
-			<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+			{/*
+			 * Five boxes and four links are taller than the space above the caption
+			 * band, and every part of them is already as small as it reads well at.
+			 * Scaling the whole column keeps the proportions and buys the room.
+			 */}
+			<div
+				style={{
+					display: 'flex',
+					flexDirection: 'column',
+					alignItems: 'center',
+					transform: 'scale(0.86)',
+				}}
+			>
 				<Stage label="Client" sub="wants the next row" from={10} active={[cue(EP, 'pull', 1), 9999]} width={300} />
-				<Connector axis="up" from={18} travel={cue(EP, 'pull', 1) + 92} length={60} />
+				<Connector axis="up" from={18} travel={cue(EP, 'pull', 1) + 92} length={44} />
 				<Stage label="Limit 10" sub="stops pulling at 10" from={18} active={[cue(EP, 'pull', 2), 9999]} width={300} />
-				<Connector axis="up" from={26} travel={cue(EP, 'pull', 1) + 74} length={60} />
+				<Connector axis="up" from={26} travel={cue(EP, 'pull', 1) + 74} length={44} />
 				<Stage label="Sort" sub="must drain its child" from={26} active={[cue(EP, 'pull', 3), 9999]} width={300} />
-				<Connector axis="up" from={34} travel={cue(EP, 'pull', 1) + 56} length={60} />
+				<Connector axis="up" from={34} travel={cue(EP, 'pull', 1) + 56} length={44} />
 				<Stage label="Filter" sub="id &gt; 100" from={34} active={[cue(EP, 'pull', 1) + 40, 9999]} width={300} />
-				<Connector axis="up" from={42} travel={cue(EP, 'pull', 1) + 38} length={60} />
+				<Connector axis="up" from={42} travel={cue(EP, 'pull', 1) + 38} length={44} />
 				<Stage label="Seq Scan" sub="reads pages" from={42} active={[cue(EP, 'pull', 1) + 20, 9999]} width={300} />
 			</div>
 
 			<div style={{display: 'flex', flexDirection: 'column', gap: 26, width: 700}}>
 				<Heading size={46}>Nobody runs the whole query. Each node asks its child for one row.</Heading>
-				<Callout from={cue(EP, 'pull', 1)} label="Pull, not push">
-					Execution starts at the top and travels down as a request; rows travel back up
-					one at a time.
+				<Callout from={cue(EP, 'pull', 1)} label="Pull, not push" size={29}>
+					A request travels down; rows travel back up, one at a time.
 				</Callout>
-				<Callout from={cue(EP, 'pull', 2)} label="Why LIMIT is fast">
-					Limit stops asking after ten rows, so the scan below it never reads the rest of
-					the table.
+				<Callout from={cue(EP, 'pull', 2)} label="Why LIMIT is fast" size={29}>
+					It stops asking at ten, so the scan never reads the rest.
 				</Callout>
-				<Callout from={cue(EP, 'pull', 3)} label="Why ORDER BY is not" accent={theme.warn}>
-					Sort cannot return its first row until it has pulled <em>every</em> row from its
-					child. This is the blocking node that spills to disk.
+				<Callout from={cue(EP, 'pull', 3)} label="Why ORDER BY is not" accent={theme.warn} size={29}>
+					Sort must drain <em>every</em> row first. This is what spills to disk.
 				</Callout>
 			</div>
 		</AbsoluteFill>
