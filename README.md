@@ -2,7 +2,14 @@
 
 A [Remotion](https://www.remotion.dev/) video app: React components rendered frame by frame into an MP4.
 
-The repo ships with one finished film, **"Video as code"** — a 17.7 s / 530-frame 1080p30 motion-graphics piece built entirely from code. No stock footage, no image assets, no network at render time.
+The repo ships with one finished film, **"Video as code"** — a 17.7 s / 530-frame 1080p30
+motion-graphics piece built entirely from code. No stock footage, no image assets, no
+network at render time.
+
+![Poster frame](media/poster.jpg)
+
+The rendered film is committed at [`media/video-as-code.mp4`](media/video-as-code.mp4);
+`npm run build` regenerates it into `out/`, which is gitignored.
 
 ## Quick start
 
@@ -39,6 +46,7 @@ src/
     Outro.tsx         The bars fall back into the dot — the film ends where it began
   components/         KineticText, Seed, StarField, Grain, Vignette, Caption
 public/               staticFile() assets
+media/                The committed film and its poster frame
 out/                  Render output (gitignored)
 ```
 
