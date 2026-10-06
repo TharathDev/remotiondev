@@ -1,207 +1,207 @@
 {
 	"01-connection": {
-		"voice": "pico",
+		"voice": "piper",
 		"scenes": {
 			"title": {
 				"file": "audio/01-connection/title.mp3",
-				"frames": 286,
+				"frames": 332,
 				"lines": [
 					{
 						"text": "Episode one. Connection.",
 						"from": 14,
-						"frames": 62
+						"frames": 66
 					},
 					{
 						"text": "Before a single line of SQL runs, the client and the server have to agree on who you are.",
-						"from": 88,
-						"frames": 162
+						"from": 92,
+						"frames": 206
 					}
 				]
 			},
 			"handshake": {
 				"file": "audio/01-connection/handshake.mp3",
-				"frames": 709,
+				"frames": 864,
 				"lines": [
 					{
 						"text": "Nothing runs until a session exists.",
 						"from": 14,
-						"frames": 62
+						"frames": 96
 					},
 					{
 						"text": "The server speaks first. It announces its version and the authentication methods it will accept.",
-						"from": 88,
-						"frames": 171
+						"from": 122,
+						"frames": 213
 					},
 					{
 						"text": "The client answers with credentials. Only when that exchange succeeds does a session exist.",
-						"from": 272,
-						"frames": 165
+						"from": 348,
+						"frames": 208
 					},
 					{
 						"text": "Building a connection is expensive. Keeping one open is cheap. That asymmetry is the whole argument for connection pooling.",
-						"from": 449,
-						"frames": 225
+						"from": 569,
+						"frames": 261
 					}
 				]
 			},
 			"engines": {
 				"file": "audio/01-connection/engines.mp3",
-				"frames": 921,
+				"frames": 1176,
 				"lines": [
 					{
 						"text": "But a connection is not the same thing in both engines.",
 						"from": 14,
-						"frames": 83
+						"frames": 125
 					},
 					{
 						"text": "MySQL gives each connection a thread inside one server process. Threads share an address space, so a new connection is cheap, and one bad thread can take the whole server down with it.",
-						"from": 109,
-						"frames": 326
+						"from": 151,
+						"frames": 446
 					},
 					{
 						"text": "PostgreSQL forks a separate operating system process for every connection. Processes are isolated, so a crash costs you one backend instead of the server, but each one costs real memory. That is why PgBouncer exists.",
-						"from": 448,
-						"frames": 439
+						"from": 610,
+						"frames": 532
 					}
 				]
 			},
 			"end": {
 				"file": "audio/01-connection/end.mp3",
-				"frames": 545,
+				"frames": 605,
 				"lines": [
 					{
 						"text": "So: the server speaks first, the client answers, and only then does a session exist.",
 						"from": 14,
-						"frames": 171
+						"frames": 199
 					},
 					{
 						"text": "MySQL gives you a thread. PostgreSQL gives you a process.",
-						"from": 197,
-						"frames": 121
+						"from": 225,
+						"frames": 155
 					},
 					{
 						"text": "Either way, the connection is the expensive part. Pool it.",
-						"from": 330,
-						"frames": 122
+						"from": 392,
+						"frames": 123
 					},
 					{
 						"text": "Next, we parse.",
-						"from": 465,
-						"frames": 45
+						"from": 527,
+						"frames": 43
 					}
 				]
 			}
 		}
 	},
 	"02-parse": {
-		"voice": "pico",
+		"voice": "piper",
 		"scenes": {
 			"title": {
 				"file": "audio/02-parse/title.mp3",
-				"frames": 216,
+				"frames": 258,
 				"lines": [
 					{
 						"text": "Episode two. Parse.",
 						"from": 14,
-						"frames": 56
+						"frames": 57
 					},
 					{
 						"text": "From a string on the wire to a tree the server can reason about.",
-						"from": 82,
-						"frames": 99
+						"from": 83,
+						"frames": 140
 					}
 				]
 			},
 			"tokens": {
 				"file": "audio/02-parse/tokens.mp3",
-				"frames": 543,
+				"frames": 610,
 				"lines": [
 					{
 						"text": "To the server, your query arrives as a string. Nothing more.",
 						"from": 14,
-						"frames": 124
+						"frames": 145
 					},
 					{
 						"text": "The first job is lexing: cutting that string into tokens. Keywords, identifiers, literals, punctuation.",
-						"from": 150,
-						"frames": 248
+						"from": 171,
+						"frames": 278
 					},
 					{
 						"text": "A typo fails here, before anything touches a table.",
-						"from": 411,
-						"frames": 97
+						"from": 461,
+						"frames": 114
 					}
 				]
 			},
 			"tree": {
 				"file": "audio/02-parse/tree.mp3",
-				"frames": 658,
+				"frames": 774,
 				"lines": [
 					{
 						"text": "Next, those tokens are assembled into a tree.",
 						"from": 14,
-						"frames": 87
+						"frames": 104
 					},
 					{
 						"text": "The root is the statement. Beneath it hang the target list, the from clause, and the where clause.",
-						"from": 113,
-						"frames": 181
+						"from": 130,
+						"frames": 205
 					},
 					{
 						"text": "But this is still only syntax. The tree says the query is shaped correctly. It does not yet know whether the users table exists, or what type the id column is.",
-						"from": 306,
-						"frames": 317
+						"from": 348,
+						"frames": 391
 					}
 				]
 			},
 			"pipelines": {
 				"file": "audio/02-parse/pipelines.mp3",
-				"frames": 755,
+				"frames": 868,
 				"lines": [
 					{
 						"text": "Resolving those names is a separate stage, and here the two engines differ.",
 						"from": 14,
-						"frames": 131
+						"frames": 162
 					},
 					{
 						"text": "MySQL goes parser, resolver, optimizer. Three steps.",
-						"from": 157,
-						"frames": 138
+						"from": 188,
+						"frames": 149
 					},
 					{
 						"text": "PostgreSQL goes parser, analyzer, rewriter, planner. Four.",
-						"from": 308,
-						"frames": 160
+						"from": 349,
+						"frames": 164
 					},
 					{
 						"text": "That extra rewriter stage is what expands a view into the query that selects from it, and what makes PostgreSQL rules work at all.",
-						"from": 481,
-						"frames": 239
+						"from": 526,
+						"frames": 308
 					}
 				]
 			},
 			"end": {
 				"file": "audio/02-parse/end.mp3",
-				"frames": 616,
+				"frames": 716,
 				"lines": [
 					{
 						"text": "Lexing, then parsing, turns text into a syntax tree, so a typo never reaches a table.",
 						"from": 14,
-						"frames": 190
+						"frames": 210
 					},
 					{
 						"text": "The parse tree is syntax only. Resolving names and types comes after.",
-						"from": 216,
-						"frames": 145
+						"from": 237,
+						"frames": 176
 					},
 					{
 						"text": "And PostgreSQL adds a rewriter stage, which is how views and rules are expanded.",
-						"from": 374,
-						"frames": 150
+						"from": 425,
+						"frames": 200
 					},
 					{
 						"text": "Next, we plan.",
-						"from": 537,
+						"from": 637,
 						"frames": 45
 					}
 				]
@@ -209,141 +209,141 @@
 		}
 	},
 	"03-plan": {
-		"voice": "pico",
+		"voice": "piper",
 		"scenes": {
 			"title": {
 				"file": "audio/03-plan/title.mp3",
-				"frames": 217,
+				"frames": 232,
 				"lines": [
 					{
 						"text": "Episode three. Plan.",
 						"from": 14,
-						"frames": 58
+						"frames": 60
 					},
 					{
 						"text": "Choosing the cheapest way to answer, before answering.",
-						"from": 84,
-						"frames": 99
+						"from": 86,
+						"frames": 111
 					}
 				]
 			},
 			"candidates": {
 				"file": "audio/03-plan/candidates.mp3",
-				"frames": 1105,
+				"frames": 1261,
 				"lines": [
 					{
 						"text": "One query. Several ways to answer it.",
 						"from": 14,
-						"frames": 86
+						"frames": 104
 					},
 					{
 						"text": "The server could scan every row in the table. It could build a bitmap of matching pages. Or it could walk the primary key index straight to the row.",
-						"from": 112,
-						"frames": 266
+						"from": 130,
+						"frames": 311
 					},
 					{
 						"text": "The planner prices each one, in arbitrary cost units, and takes the cheapest.",
-						"from": 391,
-						"frames": 162
+						"from": 454,
+						"frames": 166
 					},
 					{
 						"text": "Here that is the index scan, at eight point three, against eighteen hundred for the sequential scan.",
-						"from": 565,
-						"frames": 173
+						"from": 633,
+						"frames": 219
 					},
 					{
 						"text": "Note what it did not do. The planner never asks which plan is fastest. It asks which plan it estimates is cheapest, and it is only as right as its statistics.",
-						"from": 751,
-						"frames": 319
+						"from": 864,
+						"frames": 363
 					}
 				]
 			},
 			"explain": {
 				"file": "audio/03-plan/explain.mp3",
-				"frames": 825,
+				"frames": 898,
 				"lines": [
 					{
 						"text": "You can see the estimate yourself. EXPLAIN shows the plan. EXPLAIN ANALYZE actually runs it.",
 						"from": 14,
-						"frames": 203
+						"frames": 232
 					},
 					{
 						"text": "The cost numbers are the guess, in planner units: startup cost, then total cost.",
-						"from": 229,
-						"frames": 169
+						"from": 258,
+						"frames": 172
 					},
 					{
 						"text": "The actual time numbers are the measurement, in milliseconds.",
-						"from": 410,
-						"frames": 111
+						"from": 443,
+						"frames": 131
 					},
 					{
 						"text": "When the actual row count is far from the estimate, your statistics are stale. That is a job for ANALYZE, not a bad planner.",
-						"from": 533,
-						"frames": 257
+						"from": 587,
+						"frames": 277
 					}
 				]
 			},
 			"statistics": {
 				"file": "audio/03-plan/statistics.mp3",
-				"frames": 964,
+				"frames": 1174,
 				"lines": [
 					{
 						"text": "So where do those numbers come from?",
 						"from": 14,
-						"frames": 64
+						"frames": 79
 					},
 					{
 						"text": "MySQL samples index pages at plan time, in what it calls index dives. Column histograms exist, but they are opt in.",
-						"from": 90,
-						"frames": 250
-					},
-					{
-						"text": "PostgreSQL keeps histograms, most common values and null fractions in pg_statistic, and the autovacuum daemon re-runs ANALYZE as your tables drift.",
-						"from": 353,
+						"from": 106,
 						"frames": 305
 					},
 					{
+						"text": "PostgreSQL keeps histograms, most common values and null fractions in pg_statistic, and the autovacuum daemon re-runs ANALYZE as your tables drift.",
+						"from": 423,
+						"frames": 378
+					},
+					{
 						"text": "Both of them search join orders: greedily in MySQL, and in PostgreSQL exhaustively for a few tables, then genetically past a threshold.",
-						"from": 670,
-						"frames": 259
+						"from": 814,
+						"frames": 326
 					}
 				]
 			},
 			"end": {
 				"file": "audio/03-plan/end.mp3",
-				"frames": 587,
+				"frames": 693,
 				"lines": [
 					{
 						"text": "The planner prices every candidate and picks the cheapest estimate, not the fastest plan.",
 						"from": 14,
-						"frames": 160
+						"frames": 191
 					},
 					{
 						"text": "EXPLAIN gives you the estimate. EXPLAIN ANALYZE runs it and gives you the truth.",
-						"from": 186,
-						"frames": 151
+						"from": 217,
+						"frames": 187
 					},
 					{
 						"text": "And a big gap between estimated and actual rows means stale statistics.",
-						"from": 350,
-						"frames": 132
+						"from": 417,
+						"frames": 175
 					},
 					{
 						"text": "Next, we execute.",
-						"from": 495,
-						"frames": 56
+						"from": 604,
+						"frames": 54
 					}
 				]
 			}
 		}
 	},
 	"04-execute": {
-		"voice": "pico",
+		"voice": "piper",
 		"scenes": {
 			"title": {
 				"file": "audio/04-execute/title.mp3",
-				"frames": 215,
+				"frames": 236,
 				"lines": [
 					{
 						"text": "Episode four. Execute.",
@@ -353,200 +353,200 @@
 					{
 						"text": "Pulling rows up the plan tree, one at a time.",
 						"from": 95,
-						"frames": 85
+						"frames": 106
 					}
 				]
 			},
 			"pull": {
 				"file": "audio/04-execute/pull.mp3",
-				"frames": 988,
+				"frames": 1211,
 				"lines": [
 					{
 						"text": "Here is the thing most people get backwards. Nobody runs the whole query.",
 						"from": 14,
-						"frames": 137
+						"frames": 156
 					},
 					{
 						"text": "Execution is a pull. Each node asks its child for one row, and rows travel back up one at a time.",
-						"from": 163,
-						"frames": 203
+						"from": 182,
+						"frames": 244
 					},
 					{
 						"text": "This is why LIMIT is fast. The limit node stops asking after ten rows, so the scan below it never reads the rest of the table.",
-						"from": 379,
-						"frames": 241
+						"from": 438,
+						"frames": 317
 					},
 					{
 						"text": "And it is why ORDER BY is not. A sort cannot return its first row until it has pulled every row from its child. That is a blocking node, and it is the one that spills to disk.",
-						"from": 632,
-						"frames": 321
+						"from": 768,
+						"frames": 408
 					}
 				]
 			},
 			"buffer": {
 				"file": "audio/04-execute/buffer.mp3",
-				"frames": 864,
+				"frames": 1079,
 				"lines": [
 					{
 						"text": "Underneath the scan, there is one more thing to understand. The scan does not read disk. It reads pages.",
 						"from": 14,
-						"frames": 213
+						"frames": 253
 					},
 					{
 						"text": "If the page it wants is already in the buffer pool, that is a hit, and it costs nanoseconds.",
-						"from": 239,
-						"frames": 169
+						"from": 279,
+						"frames": 213
 					},
 					{
 						"text": "If it is not, that is a miss. The server reads from disk and evicts something to make room.",
-						"from": 421,
-						"frames": 168
+						"from": 505,
+						"frames": 225
 					},
 					{
 						"text": "This is the only number that really matters. Tuning a database is mostly arranging for the pages you need to already be in memory.",
-						"from": 602,
-						"frames": 228
+						"from": 743,
+						"frames": 302
 					}
 				]
 			},
 			"memory": {
 				"file": "audio/04-execute/memory.mp3",
-				"frames": 1088,
+				"frames": 1369,
 				"lines": [
 					{
 						"text": "Both engines cache pages. They disagree about how.",
 						"from": 14,
-						"frames": 107
+						"frames": 120
 					},
 					{
 						"text": "InnoDB opens its files with O_DIRECT and owns the memory outright, so you give the buffer pool most of the machine. A split young and old list keeps one big scan from flushing everything that matters.",
-						"from": 133,
-						"frames": 367
+						"from": 146,
+						"frames": 477
 					},
 					{
 						"text": "PostgreSQL shares with the kernel page cache, so a page can sit in both. The usual advice is about a quarter of RAM. It sweeps a usage counter in a ring instead of a strict least recently used list, and gives big sequential scans a small private ring so they cannot evict the whole cache.",
-						"from": 512,
-						"frames": 541
+						"from": 636,
+						"frames": 699
 					}
 				]
 			},
 			"end": {
 				"file": "audio/04-execute/end.mp3",
-				"frames": 646,
+				"frames": 797,
 				"lines": [
 					{
 						"text": "Execution is a pull. Each node asks its child for one row, so LIMIT really does stop the scan.",
 						"from": 14,
-						"frames": 191
+						"frames": 248
 					},
 					{
 						"text": "Sort and hash nodes block. They must drain their child before returning anything.",
-						"from": 218,
-						"frames": 156
+						"from": 274,
+						"frames": 196
 					},
 					{
 						"text": "And reads either hit the buffer pool or they hit disk. That difference is most of your latency.",
-						"from": 386,
-						"frames": 167
+						"from": 483,
+						"frames": 218
 					},
 					{
 						"text": "Next, we return.",
-						"from": 567,
-						"frames": 45
+						"from": 714,
+						"frames": 49
 					}
 				]
 			}
 		}
 	},
 	"05-return": {
-		"voice": "pico",
+		"voice": "piper",
 		"scenes": {
 			"title": {
 				"file": "audio/05-return/title.mp3",
-				"frames": 220,
+				"frames": 258,
 				"lines": [
 					{
 						"text": "Episode five. Return.",
 						"from": 14,
-						"frames": 61
+						"frames": 67
 					},
 					{
 						"text": "How rows get from the executor back into your variables.",
-						"from": 87,
-						"frames": 99
+						"from": 93,
+						"frames": 130
 					}
 				]
 			},
 			"streaming": {
 				"file": "audio/05-return/streaming.mp3",
-				"frames": 731,
+				"frames": 869,
 				"lines": [
 					{
 						"text": "The result set is not a parcel. It is a stream.",
 						"from": 14,
-						"frames": 95
+						"frames": 118
 					},
 					{
 						"text": "Rows leave the executor as they are found, not when the query ends. They are framed by the wire protocol, handed to your driver, and arrive in your code one at a time.",
-						"from": 121,
-						"frames": 327
+						"from": 144,
+						"frames": 376
 					},
 					{
 						"text": "Which means a driver that materialises the whole result set before giving you the first row throws all of that away, and your memory with it.",
-						"from": 461,
-						"frames": 236
+						"from": 532,
+						"frames": 302
 					}
 				]
 			},
 			"protocol": {
 				"file": "audio/05-return/protocol.mp3",
-				"frames": 1038,
+				"frames": 1245,
 				"lines": [
 					{
 						"text": "The frames look much the same on both sides.",
 						"from": 14,
-						"frames": 76
+						"frames": 109
 					},
 					{
 						"text": "MySQL sends a column count, then a column definition per column, then one packet per row, then an OK packet to finish.",
-						"from": 102,
-						"frames": 229
+						"from": 136,
+						"frames": 298
 					},
 					{
 						"text": "PostgreSQL sends a row description, then a data row per row, then command complete and ready for query.",
-						"from": 344,
-						"frames": 197
+						"from": 446,
+						"frames": 260
 					},
 					{
 						"text": "Same shape. And here is the trap: the server streams, but your driver usually does not. That default is where out of memory on a big SELECT comes from. A cursor, or a driver fetch size, is what makes it incremental.",
-						"from": 554,
-						"frames": 450
+						"from": 719,
+						"frames": 491
 					}
 				]
 			},
 			"end": {
 				"file": "audio/05-return/end.mp3",
-				"frames": 683,
+				"frames": 834,
 				"lines": [
 					{
 						"text": "The server emits rows as it finds them. The result set is a stream.",
 						"from": 14,
-						"frames": 130
+						"frames": 176
 					},
 					{
 						"text": "Both wire protocols describe the columns once, then send rows, then signal completion.",
-						"from": 156,
-						"frames": 182
+						"from": 202,
+						"frames": 215
 					},
 					{
 						"text": "And most drivers buffer everything by default. A cursor or a fetch size is what makes it incremental.",
-						"from": 350,
-						"frames": 187
+						"from": 430,
+						"frames": 233
 					},
 					{
 						"text": "That is the life of a query, from connection to result.",
-						"from": 550,
-						"frames": 98
+						"from": 675,
+						"frames": 124
 					}
 				]
 			}
