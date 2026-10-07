@@ -1,6 +1,7 @@
 import React from 'react';
 import {AbsoluteFill} from 'remotion';
 import {Callout} from '../kit/Callout';
+import {Compare} from '../kit/Compare';
 import {Connector} from '../kit/Connector';
 import {EndCard} from '../kit/EndCard';
 import {EnginePanel} from '../kit/EnginePanel';
@@ -72,21 +73,26 @@ const TornPages: React.FC = () => {
 					</Callout>
 				</div>
 
-				<div style={{display: 'flex', gap: 38}}>
-					<EnginePanel engine={engines.mysql} from={mysqlAt - 26} width={640} tagline="doublewrite buffer" minHeight={240}>
-						<div style={{fontFamily: theme.font, fontSize: 27, color: theme.ink, lineHeight: 1.5}}>
-							Every page is written twice: first into a scratch area, then into place. On
-							recovery a torn page is rebuilt from the copy.
-						</div>
-					</EnginePanel>
-
-					<EnginePanel engine={engines.postgres} from={pgAt - 26} width={640} tagline="full page writes" minHeight={240}>
-						<div style={{fontFamily: theme.font, fontSize: 27, color: theme.ink, lineHeight: 1.5}}>
-							The first change to a page after a checkpoint puts the whole page in the
-							log, so recovery can replace it outright.
-						</div>
-					</EnginePanel>
-				</div>
+				<Compare
+					leftFrom={mysqlAt}
+					rightFrom={pgAt}
+					left={
+						<EnginePanel engine={engines.mysql} from={mysqlAt - 26} width={640} tagline="doublewrite buffer" minHeight={240}>
+							<div style={{fontFamily: theme.font, fontSize: 27, color: theme.ink, lineHeight: 1.5}}>
+								Every page is written twice: first into a scratch area, then into place. On
+								recovery a torn page is rebuilt from the copy.
+							</div>
+						</EnginePanel>
+					}
+					right={
+						<EnginePanel engine={engines.postgres} from={pgAt - 26} width={640} tagline="full page writes" minHeight={240}>
+							<div style={{fontFamily: theme.font, fontSize: 27, color: theme.ink, lineHeight: 1.5}}>
+								The first change to a page after a checkpoint puts the whole page in the
+								log, so recovery can replace it outright.
+							</div>
+						</EnginePanel>
+					}
+				/>
 			</AbsoluteFill>
 		</SceneFrame>
 	);

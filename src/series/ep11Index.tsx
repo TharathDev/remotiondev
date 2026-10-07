@@ -1,6 +1,7 @@
 import React from 'react';
 import {AbsoluteFill} from 'remotion';
 import {Callout} from '../kit/Callout';
+import {Compare} from '../kit/Compare';
 import {EndCard} from '../kit/EndCard';
 import {EnginePanel} from '../kit/EnginePanel';
 import {Film, filmDuration, Scene} from '../kit/Film';
@@ -66,29 +67,34 @@ const Storage: React.FC = () => {
 			<AbsoluteFill style={{alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 38}}>
 				<Heading>The leaves are where the engines part company</Heading>
 
-				<div style={{display: 'flex', gap: 38}}>
-					<EnginePanel engine={engines.mysql} from={myAt - 26} width={640} tagline="clustered — the table is the index" minHeight={250}>
-						<div style={{display: 'flex', flexDirection: 'column', gap: 18}}>
-							<div style={{fontFamily: theme.font, fontSize: 26, color: theme.ink, lineHeight: 1.45}}>
-								The row itself lives in the primary key's leaf.
+				<Compare
+					leftFrom={myAt}
+					rightFrom={pgAt}
+					left={
+						<EnginePanel engine={engines.mysql} from={myAt - 26} width={640} tagline="clustered — the table is the index" minHeight={250}>
+							<div style={{display: 'flex', flexDirection: 'column', gap: 18}}>
+								<div style={{fontFamily: theme.font, fontSize: 26, color: theme.ink, lineHeight: 1.45}}>
+									The row itself lives in the primary key's leaf.
+								</div>
+								<Callout from={second} label="So" accent={engines.mysql.accent} size={25}>
+									A secondary index stores the primary key — a miss costs a second descent.
+								</Callout>
 							</div>
-							<Callout from={second} label="So" accent={engines.mysql.accent} size={25}>
-								A secondary index stores the primary key — a miss costs a second descent.
-							</Callout>
-						</div>
-					</EnginePanel>
-
-					<EnginePanel engine={engines.postgres} from={pgAt - 26} width={640} tagline="heap — the table is unordered" minHeight={250}>
-						<div style={{display: 'flex', flexDirection: 'column', gap: 18}}>
-							<div style={{fontFamily: theme.font, fontSize: 26, color: theme.ink, lineHeight: 1.45}}>
-								Every index points at a physical row location in the heap.
+						</EnginePanel>
+					}
+					right={
+						<EnginePanel engine={engines.postgres} from={pgAt - 26} width={640} tagline="heap — the table is unordered" minHeight={250}>
+							<div style={{display: 'flex', flexDirection: 'column', gap: 18}}>
+								<div style={{fontFamily: theme.font, fontSize: 26, color: theme.ink, lineHeight: 1.45}}>
+									Every index points at a physical row location in the heap.
+								</div>
+								<Callout from={pgAt + 60} label="So" accent={engines.postgres.accent} size={25}>
+									All indexes are equal, and none of them own the row.
+								</Callout>
 							</div>
-							<Callout from={pgAt + 60} label="So" accent={engines.postgres.accent} size={25}>
-								All indexes are equal, and none of them own the row.
-							</Callout>
-						</div>
-					</EnginePanel>
-				</div>
+						</EnginePanel>
+					}
+				/>
 
 				<div style={{width: 1318}}>
 					<Callout from={cost} label="Either way" accent={theme.warn} size={30}>

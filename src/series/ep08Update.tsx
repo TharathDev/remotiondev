@@ -1,6 +1,7 @@
 import React from 'react';
 import {AbsoluteFill} from 'remotion';
 import {Callout} from '../kit/Callout';
+import {Compare} from '../kit/Compare';
 import {DataTable} from '../kit/DataTable';
 import {EndCard} from '../kit/EndCard';
 import {EnginePanel} from '../kit/EnginePanel';
@@ -82,21 +83,26 @@ const Cleanup: React.FC = () => {
 			<AbsoluteFill style={{alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 40}}>
 				<Heading>Old versions have to be collected</Heading>
 
-				<div style={{display: 'flex', gap: 38}}>
-					<EnginePanel engine={engines.mysql} from={myAt - 26} width={640} tagline="purge thread" minHeight={230}>
-						<div style={{fontFamily: theme.font, fontSize: 27, color: theme.ink, lineHeight: 1.5}}>
-							Discards undo records once no transaction can still see them. Blocked, the
-							undo log grows instead.
-						</div>
-					</EnginePanel>
-
-					<EnginePanel engine={engines.postgres} from={pgAt - 26} width={640} tagline="autovacuum" minHeight={230}>
-						<div style={{fontFamily: theme.font, fontSize: 27, color: theme.ink, lineHeight: 1.5}}>
-							Marks dead tuples reusable so the table stops growing. Blocked, the table
-							bloats instead.
-						</div>
-					</EnginePanel>
-				</div>
+				<Compare
+					leftFrom={myAt}
+					rightFrom={pgAt}
+					left={
+						<EnginePanel engine={engines.mysql} from={myAt - 26} width={640} tagline="purge thread" minHeight={230}>
+							<div style={{fontFamily: theme.font, fontSize: 27, color: theme.ink, lineHeight: 1.5}}>
+								Discards undo records once no transaction can still see them. Blocked, the
+								undo log grows instead.
+							</div>
+						</EnginePanel>
+					}
+					right={
+						<EnginePanel engine={engines.postgres} from={pgAt - 26} width={640} tagline="autovacuum" minHeight={230}>
+							<div style={{fontFamily: theme.font, fontSize: 27, color: theme.ink, lineHeight: 1.5}}>
+								Marks dead tuples reusable so the table stops growing. Blocked, the table
+								bloats instead.
+							</div>
+						</EnginePanel>
+					}
+				/>
 
 				<div style={{width: 1318}}>
 					<Callout from={bloat} label="The one thing that breaks both" accent={theme.warn} size={30}>
