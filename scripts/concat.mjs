@@ -2,8 +2,12 @@
 /**
  * Joins the rendered episodes into one film, in registry order.
  *
- *   node scripts/concat.mjs                    # -> out/part1.mp4
- *   node scripts/concat.mjs out/series.mp4     # custom output path
+ *   node scripts/concat.mjs out/series.mp4             # every episode
+ *   node scripts/concat.mjs out/part1.mp4 01 02 03 04 05 # just these
+ *
+ * Episode arguments are id prefixes, so "01" selects 01-connection. Without
+ * them every episode is joined — which is why the output path is explicit: a
+ * run that joined everything once silently overwrote a part file.
  *
  * The episode list comes from Remotion's own composition list rather than from
  * a glob of out/. A glob also picks up anything else that happens to be sitting
@@ -21,7 +25,9 @@ import {dirname, join, resolve} from 'node:path';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const outDir = join(root, 'out');
-const output = resolve(root, process.argv[2] ?? 'out/part1.mp4');
+const args = process.argv.slice(2);
+const output = resolve(root, args[0] ?? 'out/series.mp4');
+const wanted = args.slice(1);
 
 const listCompositions = async () => {
 	const child = spawn('npx', ['remotion', 'compositions', 'src/index.ts'], {
@@ -44,7 +50,15 @@ const listCompositions = async () => {
 };
 
 const main = async () => {
-	const ids = await listCompositions();
+	const all = await listCompositions();
+	const ids = wanted.length > 0 ? all.filter((id) => wanted.some((w) => id.startsWith(w))) : all;
+
+	if (ids.length === 0) {
+		console.error(`No episodes matched: ${wanted.join(', ')}`);
+		console.error(`Available: ${all.join(', ')}`);
+		process.exit(1);
+	}
+
 	const files = ids.map((id) => join(outDir, `${id}.mp4`));
 	const missing = ids.filter((id, i) => !existsSync(files[i]));
 

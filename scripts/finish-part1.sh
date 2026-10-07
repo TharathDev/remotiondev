@@ -22,6 +22,13 @@ for id in "$@"; do
   say "done $id in $((secs / 60))m$((secs % 60))s"
 done
 
-say "joining"
-node scripts/concat.mjs out/part1.mp4 >>"$LOG" 2>&1
-say "wrote out/part1.mp4"
+# Join only what this run rendered, into a file named after it. Joining
+# everything by default once overwrote a finished part file.
+OUT="${CONCAT_OUT:-}"
+if [ -n "$OUT" ]; then
+  say "joining $* -> $OUT"
+  node scripts/concat.mjs "$OUT" "$@" >>"$LOG" 2>&1
+  say "wrote $OUT"
+else
+  say "no CONCAT_OUT set — skipping join"
+fi
