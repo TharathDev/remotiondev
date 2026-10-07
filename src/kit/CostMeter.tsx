@@ -13,6 +13,10 @@ type Props = {
 	chosen?: boolean;
 	chosenFrom?: number;
 	accent?: string;
+	/** How to print the number. Planner costs want decimals; page counts do not. */
+	format?: (value: number) => string;
+	/** Printed after the number, e.g. "pages". */
+	unit?: string;
 };
 
 /** One candidate plan's cost, as a counting number and a bar on a shared scale. */
@@ -24,6 +28,8 @@ export const CostMeter: React.FC<Props> = ({
 	chosen = false,
 	chosenFrom = 0,
 	accent = theme.accent,
+	format = (v) => v.toFixed(2),
+	unit,
 }) => {
 	const frame = useCurrentFrame();
 
@@ -54,7 +60,8 @@ export const CostMeter: React.FC<Props> = ({
 						fontVariantNumeric: 'tabular-nums',
 					}}
 				>
-					{count.toFixed(2)}
+					{format(count)}
+					{unit ? <span style={{fontSize: 22, color: theme.muted, marginLeft: 8}}>{unit}</span> : null}
 				</div>
 			</div>
 			<div style={{height: 12, borderRadius: 6, background: 'rgba(245,243,239,0.07)', overflow: 'hidden'}}>

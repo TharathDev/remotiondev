@@ -711,5 +711,898 @@
         "rate": 1.0
       }
     ]
+  },
+  "06-select": {
+    "_options": {
+      "lengthScale": 1.088
+    },
+    "title": [
+      {
+        "text": "Welcome back. Part two starts here.",
+        "rate": 0.98,
+        "pitch": 32,
+        "gain": 1,
+        "end": "fall",
+        "pause": 0.25
+      },
+      {
+        "text": "You have seen how a query travels. Now we take the operations one at a time, starting with SELECT.",
+        "rate": 0.96,
+        "pitch": 8,
+        "end": "fall",
+        "pause": 0.3
+      },
+      {
+        "text": "Three things. The order the clauses actually run in, why that order explains a classic error, and what SELECT star really costs.",
+        "rate": 0.95,
+        "pitch": 20,
+        "breath": true,
+        "end": "fall",
+        "pause": 0.3
+      },
+      {
+        "text": "Let's select.",
+        "rate": 1.04,
+        "pitch": -22,
+        "gain": 1.5,
+        "end": "fall"
+      }
+    ],
+    "order": [
+      {
+        "text": "SELECT is the first word you write, and almost the last thing that runs.",
+        "breath": true,
+        "pause": 0.25,
+        "pitch": 20,
+        "rate": 0.97
+      },
+      {
+        "text": "The server starts at FROM. It has to know which table before it can do anything else.",
+        "pause": 0.2,
+        "pitch": -14,
+        "rate": 1.02
+      },
+      {
+        "text": "Then WHERE throws rows away, and GROUP BY and HAVING reduce what is left. Only then does SELECT choose the columns.",
+        "breath": true,
+        "pause": 0.25,
+        "pitch": 26,
+        "rate": 0.95
+      },
+      {
+        "text": "ORDER BY sorts the survivors, and LIMIT cuts the list short.",
+        "gain": 1.5,
+        "pause": 0.3,
+        "pitch": -6,
+        "rate": 1.0
+      },
+      {
+        "text": "Which explains a classic error: you cannot use a column alias in WHERE, because when WHERE runs, the alias does not exist yet.",
+        "breath": true,
+        "pitch": 20,
+        "rate": 0.97
+      }
+    ],
+    "star": [
+      {
+        "text": "Which brings us to SELECT star.",
+        "breath": true,
+        "pause": 0.25,
+        "pitch": 20,
+        "rate": 0.97
+      },
+      {
+        "text": "Naming your columns is not about typing less. It is about how much the server has to read.",
+        "pause": 0.2,
+        "pitch": -14,
+        "rate": 1.02
+      },
+      {
+        "text": "A wide row spread across several pages costs several page reads. Ask for two narrow columns and the index alone may answer you.",
+        "breath": true,
+        "pause": 0.25,
+        "pitch": 26,
+        "rate": 0.95
+      },
+      {
+        "text": "That is a covering index, and it is the difference between a millisecond and a hundred.",
+        "gain": 1.5,
+        "pitch": -6,
+        "rate": 1.0
+      }
+    ],
+    "end": [
+      {
+        "text": "Clauses run FROM, WHERE, GROUP BY, HAVING, SELECT, ORDER BY, LIMIT — not the order you type them.",
+        "breath": true,
+        "pause": 0.25,
+        "pitch": 20,
+        "rate": 0.97
+      },
+      {
+        "text": "That order is why an alias from SELECT cannot be used in WHERE.",
+        "pause": 0.2,
+        "pitch": -14,
+        "rate": 1.02
+      },
+      {
+        "text": "And SELECT star is a read-volume decision, not a typing one.",
+        "breath": true,
+        "pause": 0.25,
+        "pitch": 26,
+        "rate": 0.95
+      },
+      {
+        "text": "Next, we insert.",
+        "gain": 1.5,
+        "pitch": -6,
+        "rate": 1.0
+      }
+    ]
+  },
+  "07-insert": {
+    "_options": {
+      "lengthScale": 1.121
+    },
+    "title": [
+      {
+        "text": "Welcome back.",
+        "rate": 0.98,
+        "pitch": 32,
+        "gain": 1,
+        "end": "fall",
+        "pause": 0.25
+      },
+      {
+        "text": "A row has to get onto disk, and survive a power cut on the way.",
+        "rate": 0.96,
+        "pitch": 8,
+        "end": "fall",
+        "pause": 0.3
+      },
+      {
+        "text": "Three things. Why the write does not go to the table first, what the log actually guarantees, and how the two engines protect a half-written page.",
+        "rate": 0.95,
+        "pitch": 20,
+        "breath": true,
+        "end": "fall",
+        "pause": 0.3
+      },
+      {
+        "text": "Let's write one.",
+        "rate": 1.04,
+        "pitch": -22,
+        "gain": 1.5,
+        "end": "fall"
+      }
+    ],
+    "write": [
+      {
+        "text": "An INSERT does not go to the table. Not first.",
+        "breath": true,
+        "pause": 0.25,
+        "pitch": 20,
+        "rate": 0.97
+      },
+      {
+        "text": "The row is written into a page in memory, and the change is appended to the write-ahead log.",
+        "pause": 0.2,
+        "pitch": -14,
+        "rate": 1.02
+      },
+      {
+        "text": "The log is flushed to disk. Only then does COMMIT return to you.",
+        "breath": true,
+        "pause": 0.25,
+        "pitch": 26,
+        "rate": 0.95
+      },
+      {
+        "text": "The page itself might be written minutes later. Or never, if it changes again first.",
+        "gain": 1.5,
+        "pause": 0.3,
+        "pitch": -6,
+        "rate": 1.0
+      },
+      {
+        "text": "This is why a database survives a power cut. The log is the truth; the table catches up.",
+        "breath": true,
+        "pitch": 20,
+        "rate": 0.97
+      }
+    ],
+    "durability": [
+      {
+        "text": "Both engines work this way. They disagree about the dangerous part.",
+        "breath": true,
+        "pause": 0.25,
+        "pitch": 20,
+        "rate": 0.97
+      },
+      {
+        "text": "A page is bigger than a disk sector, so a crash can leave it half written. Neither engine can trust such a page.",
+        "pause": 0.2,
+        "pitch": -14,
+        "rate": 1.02
+      },
+      {
+        "text": "MySQL writes every page twice: once into a doublewrite buffer, then into place. A torn page is recovered from the copy.",
+        "breath": true,
+        "pause": 0.25,
+        "pitch": 26,
+        "rate": 0.95
+      },
+      {
+        "text": "PostgreSQL instead writes the entire page into the log the first time it changes after a checkpoint.",
+        "gain": 1.5,
+        "pitch": -6,
+        "rate": 1.0
+      }
+    ],
+    "end": [
+      {
+        "text": "The write-ahead log is flushed before COMMIT returns; the table page can wait.",
+        "breath": true,
+        "pause": 0.25,
+        "pitch": 20,
+        "rate": 0.97
+      },
+      {
+        "text": "That ordering is the whole of crash durability.",
+        "pause": 0.2,
+        "pitch": -14,
+        "rate": 1.02
+      },
+      {
+        "text": "A torn page is the real danger, and each engine pays differently to survive it.",
+        "breath": true,
+        "pause": 0.25,
+        "pitch": 26,
+        "rate": 0.95
+      },
+      {
+        "text": "Next, we update.",
+        "gain": 1.5,
+        "pitch": -6,
+        "rate": 1.0
+      }
+    ]
+  },
+  "08-update": {
+    "_options": {
+      "lengthScale": 1.078
+    },
+    "title": [
+      {
+        "text": "Welcome back.",
+        "rate": 0.98,
+        "pitch": 32,
+        "gain": 1,
+        "end": "fall",
+        "pause": 0.25
+      },
+      {
+        "text": "An UPDATE looks like it changes a row in place. It does not.",
+        "rate": 0.96,
+        "pitch": 8,
+        "end": "fall",
+        "pause": 0.3
+      },
+      {
+        "text": "Three things. What actually happens to the old value, why two sessions can see different data at the same moment, and who clears up afterwards.",
+        "rate": 0.95,
+        "pitch": 20,
+        "breath": true,
+        "end": "fall",
+        "pause": 0.3
+      },
+      {
+        "text": "Let's change something.",
+        "rate": 1.04,
+        "pitch": -22,
+        "gain": 1.5,
+        "end": "fall"
+      }
+    ],
+    "mvcc": [
+      {
+        "text": "An UPDATE does not overwrite the row.",
+        "breath": true,
+        "pause": 0.25,
+        "pitch": 20,
+        "rate": 0.97
+      },
+      {
+        "text": "PostgreSQL writes a new version of it and marks the old one dead. The dead one stays in the table.",
+        "pause": 0.2,
+        "pitch": -14,
+        "rate": 1.02
+      },
+      {
+        "text": "InnoDB writes the new value in place, and keeps the old value in the undo log.",
+        "breath": true,
+        "pause": 0.25,
+        "pitch": 26,
+        "rate": 0.95
+      },
+      {
+        "text": "Either way, a reader that started before your change still sees the old value. That is multi-version concurrency control.",
+        "gain": 1.5,
+        "pause": 0.3,
+        "pitch": -6,
+        "rate": 1.0
+      },
+      {
+        "text": "It is also why a reader never blocks a writer, and a writer never blocks a reader.",
+        "breath": true,
+        "pitch": 20,
+        "rate": 0.97
+      }
+    ],
+    "cleanup": [
+      {
+        "text": "But somebody has to clear up.",
+        "breath": true,
+        "pause": 0.25,
+        "pitch": 20,
+        "rate": 0.97
+      },
+      {
+        "text": "In PostgreSQL that is autovacuum. It marks dead tuples reusable, so the table stops growing.",
+        "pause": 0.2,
+        "pitch": -14,
+        "rate": 1.02
+      },
+      {
+        "text": "In InnoDB it is the purge thread, discarding undo records that no transaction can still see.",
+        "breath": true,
+        "pause": 0.25,
+        "pitch": 26,
+        "rate": 0.95
+      },
+      {
+        "text": "Block either one with a long-open transaction and you get bloat: in the table, or in the undo log.",
+        "gain": 1.5,
+        "pitch": -6,
+        "rate": 1.0
+      }
+    ],
+    "end": [
+      {
+        "text": "Nothing is overwritten. The old value survives as a dead tuple or an undo record.",
+        "breath": true,
+        "pause": 0.25,
+        "pitch": 20,
+        "rate": 0.97
+      },
+      {
+        "text": "That is what lets readers and writers run without blocking each other.",
+        "pause": 0.2,
+        "pitch": -14,
+        "rate": 1.02
+      },
+      {
+        "text": "And an idle transaction left open is what turns that into bloat.",
+        "breath": true,
+        "pause": 0.25,
+        "pitch": 26,
+        "rate": 0.95
+      },
+      {
+        "text": "Next, we delete.",
+        "gain": 1.5,
+        "pitch": -6,
+        "rate": 1.0
+      }
+    ]
+  },
+  "09-delete": {
+    "_options": {
+      "lengthScale": 1.038
+    },
+    "title": [
+      {
+        "text": "Welcome back.",
+        "rate": 0.98,
+        "pitch": 32,
+        "gain": 1,
+        "end": "fall",
+        "pause": 0.25
+      },
+      {
+        "text": "DELETE is the operation people most expect to free disk space. It does not.",
+        "rate": 0.96,
+        "pitch": 8,
+        "end": "fall",
+        "pause": 0.3
+      },
+      {
+        "text": "Three things. What a delete actually writes, why the file stays the same size, and what you run when you genuinely need the space back.",
+        "rate": 0.95,
+        "pitch": 20,
+        "breath": true,
+        "end": "fall",
+        "pause": 0.3
+      },
+      {
+        "text": "Let's remove some rows.",
+        "rate": 1.04,
+        "pitch": -22,
+        "gain": 1.5,
+        "end": "fall"
+      }
+    ],
+    "mark": [
+      {
+        "text": "DELETE does not erase anything.",
+        "breath": true,
+        "pause": 0.25,
+        "pitch": 20,
+        "rate": 0.97
+      },
+      {
+        "text": "It marks the row dead, writes that change to the log, and returns.",
+        "pause": 0.2,
+        "pitch": -14,
+        "rate": 1.02
+      },
+      {
+        "text": "The bytes are still sitting on the page until cleanup runs.",
+        "breath": true,
+        "pause": 0.25,
+        "pitch": 26,
+        "rate": 0.95
+      },
+      {
+        "text": "Which is why deleting a million rows gives you back no disk at all.",
+        "gain": 1.5,
+        "pitch": -6,
+        "rate": 1.0
+      }
+    ],
+    "space": [
+      {
+        "text": "So how do you actually get the space?",
+        "breath": true,
+        "pause": 0.25,
+        "pitch": 20,
+        "rate": 0.97
+      },
+      {
+        "text": "VACUUM makes the dead space reusable, so new rows fill it instead of extending the file.",
+        "pause": 0.2,
+        "pitch": -14,
+        "rate": 1.02
+      },
+      {
+        "text": "VACUUM FULL rewrites the whole table and does return the space — behind an exclusive lock nobody else can work through.",
+        "breath": true,
+        "pause": 0.25,
+        "pitch": 26,
+        "rate": 0.95
+      },
+      {
+        "text": "MySQL's equivalent is OPTIMIZE TABLE, which rebuilds the tablespace the same way.",
+        "gain": 1.5,
+        "pause": 0.3,
+        "pitch": -6,
+        "rate": 1.0
+      },
+      {
+        "text": "And for an entire table, TRUNCATE is a different operation: it drops the data files instead of marking rows one by one.",
+        "breath": true,
+        "pitch": 20,
+        "rate": 0.97
+      }
+    ],
+    "end": [
+      {
+        "text": "DELETE marks rows dead and logs the change; the bytes stay until cleanup.",
+        "breath": true,
+        "pause": 0.25,
+        "pitch": 20,
+        "rate": 0.97
+      },
+      {
+        "text": "Ordinary vacuum makes space reusable, not returnable.",
+        "pause": 0.2,
+        "pitch": -14,
+        "rate": 1.02
+      },
+      {
+        "text": "VACUUM FULL, OPTIMIZE TABLE or TRUNCATE are what actually shrink the file — and they all take heavy locks.",
+        "breath": true,
+        "pause": 0.25,
+        "pitch": 26,
+        "rate": 0.95
+      },
+      {
+        "text": "Next, we join.",
+        "gain": 1.5,
+        "pitch": -6,
+        "rate": 1.0
+      }
+    ]
+  },
+  "10-join": {
+    "_options": {
+      "lengthScale": 1.114
+    },
+    "title": [
+      {
+        "text": "Welcome back.",
+        "rate": 0.98,
+        "pitch": 32,
+        "gain": 1,
+        "end": "fall",
+        "pause": 0.25
+      },
+      {
+        "text": "A join is the operation most likely to turn a fast query into a slow one.",
+        "rate": 0.96,
+        "pitch": 8,
+        "end": "fall",
+        "pause": 0.3
+      },
+      {
+        "text": "Three things. The three strategies a planner can choose, what each one is good at, and how it decides between them.",
+        "rate": 0.95,
+        "pitch": 20,
+        "breath": true,
+        "end": "fall",
+        "pause": 0.3
+      },
+      {
+        "text": "Let's join two tables.",
+        "rate": 1.04,
+        "pitch": -22,
+        "gain": 1.5,
+        "end": "fall"
+      }
+    ],
+    "strategies": [
+      {
+        "text": "There are three ways to join two tables, and the planner picks one.",
+        "breath": true,
+        "pause": 0.25,
+        "pitch": 20,
+        "rate": 0.97
+      },
+      {
+        "text": "Nested loop: for every row on the left, look up the matches on the right. Excellent when the left side is tiny and the right side is indexed.",
+        "pause": 0.2,
+        "pitch": -14,
+        "rate": 1.02
+      },
+      {
+        "text": "Hash join: build a hash table from the smaller side, then stream the larger side past it. Excellent for big unsorted joins, but it wants memory.",
+        "breath": true,
+        "pause": 0.25,
+        "pitch": 26,
+        "rate": 0.95
+      },
+      {
+        "text": "Merge join: sort both sides, then walk them in step. Cheap when they are already sorted, expensive when they are not.",
+        "gain": 1.5,
+        "pitch": -6,
+        "rate": 1.0
+      }
+    ],
+    "choosing": [
+      {
+        "text": "So how does it choose?",
+        "breath": true,
+        "pause": 0.25,
+        "pitch": 20,
+        "rate": 0.97
+      },
+      {
+        "text": "It estimates how many rows each side will produce, and prices all three.",
+        "pause": 0.2,
+        "pitch": -14,
+        "rate": 1.02
+      },
+      {
+        "text": "Get those estimates wrong and it picks a nested loop over a million rows, which is how a query goes from milliseconds to minutes.",
+        "breath": true,
+        "pause": 0.25,
+        "pitch": 26,
+        "rate": 0.95
+      },
+      {
+        "text": "MySQL used only nested loops until version eight point zero point eighteen. PostgreSQL has had all three for decades.",
+        "gain": 1.5,
+        "pitch": -6,
+        "rate": 1.0
+      }
+    ],
+    "end": [
+      {
+        "text": "Nested loop, hash join, merge join — one query, three very different costs.",
+        "breath": true,
+        "pause": 0.25,
+        "pitch": 20,
+        "rate": 0.97
+      },
+      {
+        "text": "The planner prices them from its row estimates, so a bad estimate is a bad join.",
+        "pause": 0.2,
+        "pitch": -14,
+        "rate": 1.02
+      },
+      {
+        "text": "A nested loop over a large unindexed side is the classic disaster.",
+        "breath": true,
+        "pause": 0.25,
+        "pitch": 26,
+        "rate": 0.95
+      },
+      {
+        "text": "Next, indexes.",
+        "gain": 1.5,
+        "pitch": -6,
+        "rate": 1.0
+      }
+    ]
+  },
+  "11-index": {
+    "_options": {
+      "lengthScale": 1.105
+    },
+    "title": [
+      {
+        "text": "Welcome back.",
+        "rate": 0.98,
+        "pitch": 32,
+        "gain": 1,
+        "end": "fall",
+        "pause": 0.25
+      },
+      {
+        "text": "Everything we have said about fast lookups has assumed an index. Now we open one up.",
+        "rate": 0.96,
+        "pitch": 8,
+        "end": "fall",
+        "pause": 0.3
+      },
+      {
+        "text": "Three things. What a B-tree lookup actually does, how the two engines store the rows at the bottom, and when an index makes things worse.",
+        "rate": 0.95,
+        "pitch": 20,
+        "breath": true,
+        "end": "fall",
+        "pause": 0.3
+      },
+      {
+        "text": "Let's look inside.",
+        "rate": 1.04,
+        "pitch": -22,
+        "gain": 1.5,
+        "end": "fall"
+      }
+    ],
+    "btree": [
+      {
+        "text": "An index is a tree, and a lookup is a walk down it.",
+        "breath": true,
+        "pause": 0.25,
+        "pitch": 20,
+        "rate": 0.97
+      },
+      {
+        "text": "Start at the root. Compare your value, pick a branch, repeat.",
+        "pause": 0.2,
+        "pitch": -14,
+        "rate": 1.02
+      },
+      {
+        "text": "Three or four levels reaches any row in a table of millions, because every level multiplies the fan-out.",
+        "breath": true,
+        "pause": 0.25,
+        "pitch": 26,
+        "rate": 0.95
+      },
+      {
+        "text": "That is the whole trick: a handful of page reads instead of a scan of everything.",
+        "gain": 1.5,
+        "pitch": -6,
+        "rate": 1.0
+      }
+    ],
+    "storage": [
+      {
+        "text": "The leaves are where the engines part company.",
+        "breath": true,
+        "pause": 0.25,
+        "pitch": 20,
+        "rate": 0.97
+      },
+      {
+        "text": "In InnoDB, the table is the primary key index. The row itself lives in the leaf.",
+        "pause": 0.2,
+        "pitch": -14,
+        "rate": 1.02
+      },
+      {
+        "text": "So a secondary index stores the primary key, and reading a column it does not contain costs a second descent.",
+        "breath": true,
+        "pause": 0.25,
+        "pitch": 26,
+        "rate": 0.95
+      },
+      {
+        "text": "PostgreSQL keeps the table as an unordered heap, and every index points at a physical row location instead.",
+        "gain": 1.5,
+        "pause": 0.3,
+        "pitch": -6,
+        "rate": 1.0
+      },
+      {
+        "text": "Which is why every index costs more writes, and why an index nobody reads is pure tax.",
+        "breath": true,
+        "pitch": 20,
+        "rate": 0.97
+      }
+    ],
+    "end": [
+      {
+        "text": "A lookup is three or four page reads down a tree, not a scan.",
+        "breath": true,
+        "pause": 0.25,
+        "pitch": 20,
+        "rate": 0.97
+      },
+      {
+        "text": "InnoDB puts the row in the leaf; PostgreSQL points at a heap location.",
+        "pause": 0.2,
+        "pitch": -14,
+        "rate": 1.02
+      },
+      {
+        "text": "Every index you add is paid for on every write.",
+        "breath": true,
+        "pause": 0.25,
+        "pitch": 26,
+        "rate": 0.95
+      },
+      {
+        "text": "Next, transactions.",
+        "gain": 1.5,
+        "pitch": -6,
+        "rate": 1.0
+      }
+    ]
+  },
+  "12-transaction": {
+    "title": [
+      {
+        "text": "Welcome back. Last one.",
+        "rate": 0.98,
+        "pitch": 32,
+        "gain": 1,
+        "end": "fall",
+        "pause": 0.25
+      },
+      {
+        "text": "Everything so far has been one operation. Transactions are how you make several of them behave as one.",
+        "rate": 0.96,
+        "pitch": 8,
+        "end": "fall",
+        "pause": 0.3
+      },
+      {
+        "text": "Three things. What COMMIT and ROLLBACK actually do, the four isolation levels, and which one each engine gives you by default.",
+        "rate": 0.95,
+        "pitch": 20,
+        "breath": true,
+        "end": "fall",
+        "pause": 0.3
+      },
+      {
+        "text": "Let's finish the series.",
+        "rate": 1.04,
+        "pitch": -22,
+        "gain": 1.5,
+        "end": "fall"
+      }
+    ],
+    "lifecycle": [
+      {
+        "text": "BEGIN. Do the work. Then COMMIT, or ROLLBACK.",
+        "breath": true,
+        "pause": 0.25,
+        "pitch": 20,
+        "rate": 0.97
+      },
+      {
+        "text": "In between, nothing you have done is visible to anyone else.",
+        "pause": 0.2,
+        "pitch": -14,
+        "rate": 1.02
+      },
+      {
+        "text": "COMMIT flushes the log and makes your work durable and visible at the same instant.",
+        "breath": true,
+        "pause": 0.25,
+        "pitch": 26,
+        "rate": 0.95
+      },
+      {
+        "text": "ROLLBACK throws it away: InnoDB walks the undo log backwards, while PostgreSQL simply never marks your new tuples live.",
+        "gain": 1.5,
+        "pause": 0.3,
+        "pitch": -6,
+        "rate": 1.0
+      },
+      {
+        "text": "Which means in PostgreSQL a rollback is nearly free, and in InnoDB a huge one is not.",
+        "breath": true,
+        "pitch": 20,
+        "rate": 0.97
+      }
+    ],
+    "isolation": [
+      {
+        "text": "The interesting question is what you can see while somebody else is writing.",
+        "breath": true,
+        "pause": 0.25,
+        "pitch": 20,
+        "rate": 0.97
+      },
+      {
+        "text": "Read uncommitted lets you see their unfinished work. Almost nobody wants that.",
+        "pause": 0.2,
+        "pitch": -14,
+        "rate": 1.02
+      },
+      {
+        "text": "Read committed gives every statement a fresh snapshot. This is PostgreSQL's default.",
+        "breath": true,
+        "pause": 0.25,
+        "pitch": 26,
+        "rate": 0.95
+      },
+      {
+        "text": "Repeatable read gives the whole transaction one snapshot. This is MySQL's default.",
+        "gain": 1.5,
+        "pause": 0.3,
+        "pitch": -6,
+        "rate": 1.0
+      },
+      {
+        "text": "Serializable promises the result matches some serial order, and will abort you to keep that promise.",
+        "breath": true,
+        "pitch": 20,
+        "rate": 0.97
+      }
+    ],
+    "end": [
+      {
+        "text": "COMMIT makes work durable and visible at one instant; ROLLBACK discards it.",
+        "breath": true,
+        "pause": 0.25,
+        "pitch": 20,
+        "rate": 0.97
+      },
+      {
+        "text": "The four isolation levels trade visibility anomalies against concurrency.",
+        "pause": 0.2,
+        "pitch": -14,
+        "rate": 1.02
+      },
+      {
+        "text": "PostgreSQL defaults to read committed, MySQL to repeatable read — the same code behaves differently on each.",
+        "breath": true,
+        "pause": 0.25,
+        "pitch": 26,
+        "rate": 0.95
+      },
+      {
+        "text": "That is the whole series: connection to commit.",
+        "gain": 1.5,
+        "pitch": -6,
+        "rate": 1.0
+      }
+    ]
   }
 }

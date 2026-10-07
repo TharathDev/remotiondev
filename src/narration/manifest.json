@@ -636,5 +636,803 @@
 				]
 			}
 		}
+	},
+	"06-select": {
+		"voice": "piper",
+		"scenes": {
+			"title": {
+				"file": "audio/06-select/title.mp3",
+				"frames": 731,
+				"lines": [
+					{
+						"text": "Welcome back. Part two starts here.",
+						"from": 14,
+						"frames": 79
+					},
+					{
+						"text": "You have seen how a query travels. Now we take the operations one at a time, starting with SELECT.",
+						"from": 106,
+						"frames": 239
+					},
+					{
+						"text": "Three things. The order the clauses actually run in, why that order explains a classic error, and what SELECT star really costs.",
+						"from": 359,
+						"frames": 297
+					},
+					{
+						"text": "Let's select.",
+						"from": 672,
+						"frames": 35
+					}
+				]
+			},
+			"order": {
+				"file": "audio/06-select/order.mp3",
+				"frames": 1142,
+				"lines": [
+					{
+						"text": "SELECT is the first word you write, and almost the last thing that runs.",
+						"from": 14,
+						"frames": 174
+					},
+					{
+						"text": "The server starts at FROM. It has to know which table before it can do anything else.",
+						"from": 201,
+						"frames": 188
+					},
+					{
+						"text": "Then WHERE throws rows away, and GROUP BY and HAVING reduce what is left. Only then does SELECT choose the columns.",
+						"from": 401,
+						"frames": 258
+					},
+					{
+						"text": "ORDER BY sorts the survivors, and LIMIT cuts the list short.",
+						"from": 672,
+						"frames": 146
+					},
+					{
+						"text": "Which explains a classic error: you cannot use a column alias in WHERE, because when WHERE runs, the alias does not exist yet.",
+						"from": 833,
+						"frames": 286
+					}
+				]
+			},
+			"star": {
+				"file": "audio/06-select/star.mp3",
+				"frames": 834,
+				"lines": [
+					{
+						"text": "Which brings us to SELECT star.",
+						"from": 14,
+						"frames": 74
+					},
+					{
+						"text": "Naming your columns is not about typing less. It is about how much the server has to read.",
+						"from": 101,
+						"frames": 211
+					},
+					{
+						"text": "A wide row spread across several pages costs several page reads. Ask for two narrow columns and the index alone may answer you.",
+						"from": 324,
+						"frames": 310
+					},
+					{
+						"text": "That is a covering index, and it is the difference between a millisecond and a hundred.",
+						"from": 647,
+						"frames": 162
+					}
+				]
+			},
+			"end": {
+				"file": "audio/06-select/end.mp3",
+				"frames": 690,
+				"lines": [
+					{
+						"text": "Clauses run FROM, WHERE, GROUP BY, HAVING, SELECT, ORDER BY, LIMIT — not the order you type them.",
+						"from": 14,
+						"frames": 257
+					},
+					{
+						"text": "That order is why an alias from SELECT cannot be used in WHERE.",
+						"from": 284,
+						"frames": 152
+					},
+					{
+						"text": "And SELECT star is a read-volume decision, not a typing one.",
+						"from": 449,
+						"frames": 151
+					},
+					{
+						"text": "Next, we insert.",
+						"from": 613,
+						"frames": 53
+					}
+				]
+			}
+		}
+	},
+	"07-insert": {
+		"voice": "piper",
+		"scenes": {
+			"title": {
+				"file": "audio/07-insert/title.mp3",
+				"frames": 604,
+				"lines": [
+					{
+						"text": "Welcome back.",
+						"from": 14,
+						"frames": 30
+					},
+					{
+						"text": "A row has to get onto disk, and survive a power cut on the way.",
+						"from": 57,
+						"frames": 139
+					},
+					{
+						"text": "Three things. Why the write does not go to the table first, what the log actually guarantees, and how the two engines protect a half-written page.",
+						"from": 212,
+						"frames": 313
+					},
+					{
+						"text": "Let's write one.",
+						"from": 540,
+						"frames": 40
+					}
+				]
+			},
+			"write": {
+				"file": "audio/07-insert/write.mp3",
+				"frames": 985,
+				"lines": [
+					{
+						"text": "An INSERT does not go to the table. Not first.",
+						"from": 14,
+						"frames": 123
+					},
+					{
+						"text": "The row is written into a page in memory, and the change is appended to the write-ahead log.",
+						"from": 150,
+						"frames": 185
+					},
+					{
+						"text": "The log is flushed to disk. Only then does COMMIT return to you.",
+						"from": 346,
+						"frames": 170
+					},
+					{
+						"text": "The page itself might be written minutes later. Or never, if it changes again first.",
+						"from": 530,
+						"frames": 194
+					},
+					{
+						"text": "This is why a database survives a power cut. The log is the truth; the table catches up.",
+						"from": 739,
+						"frames": 223
+					}
+				]
+			},
+			"durability": {
+				"file": "audio/07-insert/durability.mp3",
+				"frames": 1047,
+				"lines": [
+					{
+						"text": "Both engines work this way. They disagree about the dangerous part.",
+						"from": 14,
+						"frames": 153
+					},
+					{
+						"text": "A page is bigger than a disk sector, so a crash can leave it half written. Neither engine can trust such a page.",
+						"from": 180,
+						"frames": 269
+					},
+					{
+						"text": "MySQL writes every page twice: once into a doublewrite buffer, then into place. A torn page is recovered from the copy.",
+						"from": 461,
+						"frames": 300
+					},
+					{
+						"text": "PostgreSQL instead writes the entire page into the log the first time it changes after a checkpoint.",
+						"from": 775,
+						"frames": 248
+					}
+				]
+			},
+			"end": {
+				"file": "audio/07-insert/end.mp3",
+				"frames": 618,
+				"lines": [
+					{
+						"text": "The write-ahead log is flushed before COMMIT returns; the table page can wait.",
+						"from": 14,
+						"frames": 201
+					},
+					{
+						"text": "That ordering is the whole of crash durability.",
+						"from": 228,
+						"frames": 115
+					},
+					{
+						"text": "A torn page is the real danger, and each engine pays differently to survive it.",
+						"from": 356,
+						"frames": 174
+					},
+					{
+						"text": "Next, we update.",
+						"from": 543,
+						"frames": 50
+					}
+				]
+			}
+		}
+	},
+	"08-update": {
+		"voice": "piper",
+		"scenes": {
+			"title": {
+				"file": "audio/08-update/title.mp3",
+				"frames": 607,
+				"lines": [
+					{
+						"text": "Welcome back.",
+						"from": 14,
+						"frames": 28
+					},
+					{
+						"text": "An UPDATE looks like it changes a row in place. It does not.",
+						"from": 55,
+						"frames": 142
+					},
+					{
+						"text": "Three things. What actually happens to the old value, why two sessions can see different data at the same moment, and who clears up afterwards.",
+						"from": 212,
+						"frames": 307
+					},
+					{
+						"text": "Let's change something.",
+						"from": 534,
+						"frames": 49
+					}
+				]
+			},
+			"mvcc": {
+				"file": "audio/08-update/mvcc.mp3",
+				"frames": 1052,
+				"lines": [
+					{
+						"text": "An UPDATE does not overwrite the row.",
+						"from": 14,
+						"frames": 88
+					},
+					{
+						"text": "PostgreSQL writes a new version of it and marks the old one dead. The dead one stays in the table.",
+						"from": 115,
+						"frames": 234
+					},
+					{
+						"text": "InnoDB writes the new value in place, and keeps the old value in the undo log.",
+						"from": 361,
+						"frames": 187
+					},
+					{
+						"text": "Either way, a reader that started before your change still sees the old value. That is multi-version concurrency control.",
+						"from": 562,
+						"frames": 263
+					},
+					{
+						"text": "It is also why a reader never blocks a writer, and a writer never blocks a reader.",
+						"from": 840,
+						"frames": 188
+					}
+				]
+			},
+			"cleanup": {
+				"file": "audio/08-update/cleanup.mp3",
+				"frames": 823,
+				"lines": [
+					{
+						"text": "But somebody has to clear up.",
+						"from": 14,
+						"frames": 78
+					},
+					{
+						"text": "In PostgreSQL that is autovacuum. It marks dead tuples reusable, so the table stops growing.",
+						"from": 105,
+						"frames": 252
+					},
+					{
+						"text": "In InnoDB it is the purge thread, discarding undo records that no transaction can still see.",
+						"from": 369,
+						"frames": 216
+					},
+					{
+						"text": "Block either one with a long-open transaction and you get bloat: in the table, or in the undo log.",
+						"from": 598,
+						"frames": 201
+					}
+				]
+			},
+			"end": {
+				"file": "audio/08-update/end.mp3",
+				"frames": 626,
+				"lines": [
+					{
+						"text": "Nothing is overwritten. The old value survives as a dead tuple or an undo record.",
+						"from": 14,
+						"frames": 195
+					},
+					{
+						"text": "That is what lets readers and writers run without blocking each other.",
+						"from": 222,
+						"frames": 164
+					},
+					{
+						"text": "And an idle transaction left open is what turns that into bloat.",
+						"from": 398,
+						"frames": 147
+					},
+					{
+						"text": "Next, we delete.",
+						"from": 559,
+						"frames": 44
+					}
+				]
+			}
+		}
+	},
+	"09-delete": {
+		"voice": "piper",
+		"scenes": {
+			"title": {
+				"file": "audio/09-delete/title.mp3",
+				"frames": 623,
+				"lines": [
+					{
+						"text": "Welcome back.",
+						"from": 14,
+						"frames": 29
+					},
+					{
+						"text": "DELETE is the operation people most expect to free disk space. It does not.",
+						"from": 56,
+						"frames": 171
+					},
+					{
+						"text": "Three things. What a delete actually writes, why the file stays the same size, and what you run when you genuinely need the space back.",
+						"from": 242,
+						"frames": 284
+					},
+					{
+						"text": "Let's remove some rows.",
+						"from": 540,
+						"frames": 59
+					}
+				]
+			},
+			"mark": {
+				"file": "audio/09-delete/mark.mp3",
+				"frames": 592,
+				"lines": [
+					{
+						"text": "DELETE does not erase anything.",
+						"from": 14,
+						"frames": 79
+					},
+					{
+						"text": "It marks the row dead, writes that change to the log, and returns.",
+						"from": 106,
+						"frames": 164
+					},
+					{
+						"text": "The bytes are still sitting on the page until cleanup runs.",
+						"from": 282,
+						"frames": 127
+					},
+					{
+						"text": "Which is why deleting a million rows gives you back no disk at all.",
+						"from": 423,
+						"frames": 144
+					}
+				]
+			},
+			"space": {
+				"file": "audio/09-delete/space.mp3",
+				"frames": 1121,
+				"lines": [
+					{
+						"text": "So how do you actually get the space?",
+						"from": 14,
+						"frames": 87
+					},
+					{
+						"text": "VACUUM makes the dead space reusable, so new rows fill it instead of extending the file.",
+						"from": 114,
+						"frames": 216
+					},
+					{
+						"text": "VACUUM FULL rewrites the whole table and does return the space — behind an exclusive lock nobody else can work through.",
+						"from": 342,
+						"frames": 265
+					},
+					{
+						"text": "MySQL's equivalent is OPTIMIZE TABLE, which rebuilds the tablespace the same way.",
+						"from": 620,
+						"frames": 192
+					},
+					{
+						"text": "And for an entire table, TRUNCATE is a different operation: it drops the data files instead of marking rows one by one.",
+						"from": 827,
+						"frames": 269
+					}
+				]
+			},
+			"end": {
+				"file": "audio/09-delete/end.mp3",
+				"frames": 640,
+				"lines": [
+					{
+						"text": "DELETE marks rows dead and logs the change; the bytes stay until cleanup.",
+						"from": 14,
+						"frames": 165
+					},
+					{
+						"text": "Ordinary vacuum makes space reusable, not returnable.",
+						"from": 192,
+						"frames": 130
+					},
+					{
+						"text": "VACUUM FULL, OPTIMIZE TABLE or TRUNCATE are what actually shrink the file — and they all take heavy locks.",
+						"from": 334,
+						"frames": 227
+					},
+					{
+						"text": "Next, we join.",
+						"from": 575,
+						"frames": 41
+					}
+				]
+			}
+		}
+	},
+	"10-join": {
+		"voice": "piper",
+		"scenes": {
+			"title": {
+				"file": "audio/10-join/title.mp3",
+				"frames": 597,
+				"lines": [
+					{
+						"text": "Welcome back.",
+						"from": 14,
+						"frames": 30
+					},
+					{
+						"text": "A join is the operation most likely to turn a fast query into a slow one.",
+						"from": 57,
+						"frames": 171
+					},
+					{
+						"text": "Three things. The three strategies a planner can choose, what each one is good at, and how it decides between them.",
+						"from": 243,
+						"frames": 249
+					},
+					{
+						"text": "Let's join two tables.",
+						"from": 507,
+						"frames": 65
+					}
+				]
+			},
+			"strategies": {
+				"file": "audio/10-join/strategies.mp3",
+				"frames": 1147,
+				"lines": [
+					{
+						"text": "There are three ways to join two tables, and the planner picks one.",
+						"from": 14,
+						"frames": 150
+					},
+					{
+						"text": "Nested loop: for every row on the left, look up the matches on the right. Excellent when the left side is tiny and the right side is indexed.",
+						"from": 177,
+						"frames": 317
+					},
+					{
+						"text": "Hash join: build a hash table from the smaller side, then stream the larger side past it. Excellent for big unsorted joins, but it wants memory.",
+						"from": 506,
+						"frames": 341
+					},
+					{
+						"text": "Merge join: sort both sides, then walk them in step. Cheap when they are already sorted, expensive when they are not.",
+						"from": 861,
+						"frames": 261
+					}
+				]
+			},
+			"choosing": {
+				"file": "audio/10-join/choosing.mp3",
+				"frames": 902,
+				"lines": [
+					{
+						"text": "So how does it choose?",
+						"from": 14,
+						"frames": 62
+					},
+					{
+						"text": "It estimates how many rows each side will produce, and prices all three.",
+						"from": 89,
+						"frames": 173
+					},
+					{
+						"text": "Get those estimates wrong and it picks a nested loop over a million rows, which is how a query goes from milliseconds to minutes.",
+						"from": 274,
+						"frames": 268
+					},
+					{
+						"text": "MySQL used only nested loops until version eight point zero point eighteen. PostgreSQL has had all three for decades.",
+						"from": 556,
+						"frames": 323
+					}
+				]
+			},
+			"end": {
+				"file": "audio/10-join/end.mp3",
+				"frames": 654,
+				"lines": [
+					{
+						"text": "Nested loop, hash join, merge join — one query, three very different costs.",
+						"from": 14,
+						"frames": 191
+					},
+					{
+						"text": "The planner prices them from its row estimates, so a bad estimate is a bad join.",
+						"from": 218,
+						"frames": 195
+					},
+					{
+						"text": "A nested loop over a large unindexed side is the classic disaster.",
+						"from": 424,
+						"frames": 152
+					},
+					{
+						"text": "Next, indexes.",
+						"from": 590,
+						"frames": 40
+					}
+				]
+			}
+		}
+	},
+	"11-index": {
+		"voice": "piper",
+		"scenes": {
+			"title": {
+				"file": "audio/11-index/title.mp3",
+				"frames": 648,
+				"lines": [
+					{
+						"text": "Welcome back.",
+						"from": 14,
+						"frames": 29
+					},
+					{
+						"text": "Everything we have said about fast lookups has assumed an index. Now we open one up.",
+						"from": 56,
+						"frames": 193
+					},
+					{
+						"text": "Three things. What a B-tree lookup actually does, how the two engines store the rows at the bottom, and when an index makes things worse.",
+						"from": 264,
+						"frames": 292
+					},
+					{
+						"text": "Let's look inside.",
+						"from": 571,
+						"frames": 53
+					}
+				]
+			},
+			"btree": {
+				"file": "audio/11-index/btree.mp3",
+				"frames": 754,
+				"lines": [
+					{
+						"text": "An index is a tree, and a lookup is a walk down it.",
+						"from": 14,
+						"frames": 125
+					},
+					{
+						"text": "Start at the root. Compare your value, pick a branch, repeat.",
+						"from": 152,
+						"frames": 138
+					},
+					{
+						"text": "Three or four levels reaches any row in a table of millions, because every level multiplies the fan-out.",
+						"from": 302,
+						"frames": 240
+					},
+					{
+						"text": "That is the whole trick: a handful of page reads instead of a scan of everything.",
+						"from": 556,
+						"frames": 174
+					}
+				]
+			},
+			"storage": {
+				"file": "audio/11-index/storage.mp3",
+				"frames": 1114,
+				"lines": [
+					{
+						"text": "The leaves are where the engines part company.",
+						"from": 14,
+						"frames": 95
+					},
+					{
+						"text": "In InnoDB, the table is the primary key index. The row itself lives in the leaf.",
+						"from": 122,
+						"frames": 209
+					},
+					{
+						"text": "So a secondary index stores the primary key, and reading a column it does not contain costs a second descent.",
+						"from": 342,
+						"frames": 254
+					},
+					{
+						"text": "PostgreSQL keeps the table as an unordered heap, and every index points at a physical row location instead.",
+						"from": 610,
+						"frames": 253
+					},
+					{
+						"text": "Which is why every index costs more writes, and why an index nobody reads is pure tax.",
+						"from": 878,
+						"frames": 212
+					}
+				]
+			},
+			"end": {
+				"file": "audio/11-index/end.mp3",
+				"frames": 592,
+				"lines": [
+					{
+						"text": "A lookup is three or four page reads down a tree, not a scan.",
+						"from": 14,
+						"frames": 152
+					},
+					{
+						"text": "InnoDB puts the row in the leaf; PostgreSQL points at a heap location.",
+						"from": 179,
+						"frames": 193
+					},
+					{
+						"text": "Every index you add is paid for on every write.",
+						"from": 384,
+						"frames": 113
+					},
+					{
+						"text": "Next, transactions.",
+						"from": 511,
+						"frames": 57
+					}
+				]
+			}
+		}
+	},
+	"12-transaction": {
+		"voice": "piper",
+		"scenes": {
+			"title": {
+				"file": "audio/12-transaction/title.mp3",
+				"frames": 651,
+				"lines": [
+					{
+						"text": "Welcome back. Last one.",
+						"from": 14,
+						"frames": 56
+					},
+					{
+						"text": "Everything so far has been one operation. Transactions are how you make several of them behave as one.",
+						"from": 83,
+						"frames": 202
+					},
+					{
+						"text": "Three things. What COMMIT and ROLLBACK actually do, the four isolation levels, and which one each engine gives you by default.",
+						"from": 300,
+						"frames": 263
+					},
+					{
+						"text": "Let's finish the series.",
+						"from": 578,
+						"frames": 50
+					}
+				]
+			},
+			"lifecycle": {
+				"file": "audio/12-transaction/lifecycle.mp3",
+				"frames": 1014,
+				"lines": [
+					{
+						"text": "BEGIN. Do the work. Then COMMIT, or ROLLBACK.",
+						"from": 14,
+						"frames": 114
+					},
+					{
+						"text": "In between, nothing you have done is visible to anyone else.",
+						"from": 141,
+						"frames": 132
+					},
+					{
+						"text": "COMMIT flushes the log and makes your work durable and visible at the same instant.",
+						"from": 285,
+						"frames": 182
+					},
+					{
+						"text": "ROLLBACK throws it away: InnoDB walks the undo log backwards, while PostgreSQL simply never marks your new tuples live.",
+						"from": 481,
+						"frames": 283
+					},
+					{
+						"text": "Which means in PostgreSQL a rollback is nearly free, and in InnoDB a huge one is not.",
+						"from": 779,
+						"frames": 211
+					}
+				]
+			},
+			"isolation": {
+				"file": "audio/12-transaction/isolation.mp3",
+				"frames": 1026,
+				"lines": [
+					{
+						"text": "The interesting question is what you can see while somebody else is writing.",
+						"from": 14,
+						"frames": 155
+					},
+					{
+						"text": "Read uncommitted lets you see their unfinished work. Almost nobody wants that.",
+						"from": 182,
+						"frames": 161
+					},
+					{
+						"text": "Read committed gives every statement a fresh snapshot. This is PostgreSQL's default.",
+						"from": 355,
+						"frames": 205
+					},
+					{
+						"text": "Repeatable read gives the whole transaction one snapshot. This is MySQL's default.",
+						"from": 574,
+						"frames": 194
+					},
+					{
+						"text": "Serializable promises the result matches some serial order, and will abort you to keep that promise.",
+						"from": 782,
+						"frames": 220
+					}
+				]
+			},
+			"end": {
+				"file": "audio/12-transaction/end.mp3",
+				"frames": 759,
+				"lines": [
+					{
+						"text": "COMMIT makes work durable and visible at one instant; ROLLBACK discards it.",
+						"from": 14,
+						"frames": 167
+					},
+					{
+						"text": "The four isolation levels trade visibility anomalies against concurrency.",
+						"from": 194,
+						"frames": 160
+					},
+					{
+						"text": "PostgreSQL defaults to read committed, MySQL to repeatable read — the same code behaves differently on each.",
+						"from": 366,
+						"frames": 259
+					},
+					{
+						"text": "That is the whole series: connection to commit.",
+						"from": 638,
+						"frames": 97
+					}
+				]
+			}
+		}
 	}
 }
