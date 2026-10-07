@@ -75,8 +75,32 @@ without touching the others, then joined at the end.
 npm run tts                     # synthesise narration -> public/audio + manifest
 npm run render:all              # every episode -> out/01-connection.mp4, ...
 npm run render:all 03-plan      # just one, after you change it
-npm run concat                  # join them in order -> out/series.mp4
+
+# Joining. The episodes to join are named explicitly, so a join can never
+# quietly overwrite a part file with a different set.
+node scripts/concat.mjs out/part1.mp4 01 02 03 04 05
+node scripts/concat.mjs out/part2.mp4 06 07 08 09 10 11 12
+node scripts/concat.mjs out/series.mp4
 ```
+
+## The series
+
+| # | Episode | Length | |
+|---|---|---|---|
+| 01 | Connection | 1:48 | handshake; thread per connection vs process per connection |
+| 02 | Parse | 1:52 | text to tokens to tree; PostgreSQL's rewriter stage |
+| 03 | Plan | 2:25 | candidate plans; EXPLAIN vs EXPLAIN ANALYZE; statistics |
+| 04 | Execute | 2:47 | the pull model; why LIMIT is fast; the buffer pool |
+| 05 | Return | 1:57 | row streaming; both wire protocols; the OOM default |
+| 06 | Select | 1:51 | real clause order; the alias error; what `SELECT *` costs |
+| 07 | Insert | 1:47 | log before table; what COMMIT guarantees; torn pages |
+| 08 | Update | 1:42 | MVCC; why nobody blocks; autovacuum vs purge |
+| 09 | Delete | 1:37 | marking vs erasing; VACUUM FULL, OPTIMIZE, TRUNCATE |
+| 10 | Join | 1:48 | nested loop, hash, merge; how one is chosen |
+| 11 | Index | 1:42 | the B-tree descent; clustered vs heap |
+| 12 | Transaction | 1:53 | COMMIT and ROLLBACK; the four isolation levels |
+
+Part 1 (01–05) is 10:49, Part 2 (06–12) is 12:20, the whole series 23:10.
 
 The join uses ffmpeg's concat demuxer with `-c copy`. Every composition is
 1920x1080 / 30fps with the same codecs, so it is a stream copy: no re-encode, no
